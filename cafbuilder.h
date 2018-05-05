@@ -32,6 +32,9 @@ public slots:
     void showCurrentLump();
     void applyLumpChange();
     void removeCurrentLump();
+    void openQuitDialog();
+
+    void closeEvent(QCloseEvent *event);
 
 private:
     Ui::CafBuilder *ui;

@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "toolchooser.h"
 #include "cafbuilder.h"
+#include "quitdialog.h"
 
 #include <QApplication>
 #include <QVBoxLayout>

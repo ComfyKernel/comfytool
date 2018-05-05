@@ -1,24 +1,24 @@
 #include "cafbuilder.h"
 #include "ui_cafbuilder.h"
+#include "quitdialog.h"
 
 #include <QListWidget>
+#include <QCloseEvent>
 
 CafBuilder::CafBuilder(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::CafBuilder) {
     ui->setupUi(this);
 
+    // Connect base signals
+
     QListWidget* qlv = findChild<QListWidget*>("list_lumps");
     QObject::connect(qlv, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(showCurrentLump()));
 
-    QPushButton* pbtn_add = findChild<QPushButton*>("pbtn_add");
-    QObject::connect(pbtn_add, SIGNAL(clicked(bool)), this, SLOT(addLumpItem()));
-
-    QPushButton* pbtn_apply = findChild<QPushButton*>("pbtn_apply");
-    QObject::connect(pbtn_apply, SIGNAL(clicked(bool)), this, SLOT(applyLumpChange()));
-
-    QPushButton* pbtn_rem = findChild<QPushButton*>("pbtn_rem");
-    QObject::connect(pbtn_rem, SIGNAL(clicked(bool)), this, SLOT(removeCurrentLump()));
+    QObject::connect(findChild<QPushButton*>("pbtn_add"  ), SIGNAL(clicked(bool)  ), this, SLOT(addLumpItem()));
+    QObject::connect(findChild<QPushButton*>("pbtn_apply"), SIGNAL(clicked(bool)  ), this, SLOT(applyLumpChange()));
+    QObject::connect(findChild<QPushButton*>("pbtn_rem"  ), SIGNAL(clicked(bool)  ), this, SLOT(removeCurrentLump()));
+    QObject::connect(findChild<  QAction*  >("actionExit"), SIGNAL(triggered(bool)), this, SLOT(openQuitDialog()));
 }
 
 QString genName(QString name, QString type, QString path, QString data) {
@@ -30,6 +30,8 @@ unsigned int getCurrentIndex(CafBuilder* cfb) {
 }
 
 void CafBuilder::addLumpItem() {
+    // Grab text from input fields and add it to a new LUMP item in both the internal list and the visual one
+
     QString name = findChild<QLineEdit*>("le_name")->text();
     QString path = findChild<QLineEdit*>("le_path")->text();
     QString type = findChild<QLineEdit*>("le_type")->text();
@@ -40,6 +42,8 @@ void CafBuilder::addLumpItem() {
     QListWidget* qlv = findChild<QListWidget*>("list_lumps");
     qlv->addItem(genName(name, type, path, data));
     lumps.append({.name=name, .type=type, .path=path, .data=data, .versionMajor=vMajor, .versionMinor=vMinor });
+
+    // Disable removing and applying since getCurrent() returns null at this point
 
     findChild<QStatusBar*>("statusbar")->showMessage(QString("Added New LUMP \"") + name + "\"");
     findChild<QPushButton*>("pbtn_apply")->setEnabled(false);
@@ -89,6 +93,29 @@ void CafBuilder::removeCurrentLump() {
 
     findChild<QPushButton*>("pbtn_apply")->setEnabled(false);
     findChild<QPushButton*>("pbtn_rem")->setEnabled(false);
+}
+
+void CafBuilder::openQuitDialog() {
+    findChild<QStatusBar*>("statusbar")->showMessage(QString("Opening Quit Dialog"));
+
+    QuitDialog qd(this);
+
+    QObject::connect(&qd, SIGNAL(accepted()), this, SLOT(close()));
+
+    qd.exec();
+}
+
+void CafBuilder::closeEvent(QCloseEvent *event) {
+    QuitDialog qd(this);
+
+    int dcode = qd.exec();
+
+    if(dcode == QDialog::Accepted) {
+        event->accept();
+        return;
+    }
+
+    event->ignore();
 }
 
 CafBuilder::~CafBuilder() {

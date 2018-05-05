@@ -26,15 +26,19 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    toolchooser.cpp \
-    cafbuilder.cpp
+        toolchooser.cpp \
+        cafbuilder.cpp \
+        quitdialog.cpp
 
 HEADERS += \
         mainwindow.h \
-    toolchooser.h \
-    cafbuilder.h
+        toolchooser.h \
+        cafbuilder.h \
+        quitdialog.h
 
 FORMS += \
         mainwindow.ui \
         toolchooser.ui \
-        cafbuilder.ui
+        cafbuilder.ui \
+        quitdialog.ui
+
