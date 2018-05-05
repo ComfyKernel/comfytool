@@ -4,6 +4,8 @@
 
 #include <QListWidget>
 #include <QCloseEvent>
+#include <QFileDialog>
+#include <QDebug>
 
 CafBuilder::CafBuilder(QWidget *parent) :
     QMainWindow(parent),
@@ -18,7 +20,7 @@ CafBuilder::CafBuilder(QWidget *parent) :
     QObject::connect(findChild<QPushButton*>("pbtn_add"  ), SIGNAL(clicked(bool)  ), this, SLOT(addLumpItem()));
     QObject::connect(findChild<QPushButton*>("pbtn_apply"), SIGNAL(clicked(bool)  ), this, SLOT(applyLumpChange()));
     QObject::connect(findChild<QPushButton*>("pbtn_rem"  ), SIGNAL(clicked(bool)  ), this, SLOT(removeCurrentLump()));
-    QObject::connect(findChild<  QAction*  >("actionExit"), SIGNAL(triggered(bool)), this, SLOT(openQuitDialog()));
+    QObject::connect(findChild<  QAction*  >("actionOpen"), SIGNAL(triggered(bool)), this, SLOT(openFileDialog()));
 }
 
 QString genName(QString name, QString type, QString path, QString data) {
@@ -27,6 +29,45 @@ QString genName(QString name, QString type, QString path, QString data) {
 
 unsigned int getCurrentIndex(CafBuilder* cfb) {
     return (unsigned int)cfb->findChild<QListWidget*>("list_lumps")->currentIndex().row();
+}
+
+void clearBuilder(CafBuilder* cb) {
+    cb->lumps.clear();
+    cb->findChild<QListWidget*>("list_lumps")->clear();
+}
+
+void cafShowMessage(CafBuilder* cb, QString msg, bool log=false) {
+    cb->findChild<QStatusBar*>("statusbar")->showMessage(msg);
+    if(log) qInfo()<<msg;
+}
+
+void pushLump(CafBuilder* cb, QString name, QString type, QString path, QString data, unsigned vMajor=1, unsigned vMinor=0) {
+    cb->lumps.append({.name=name, .type=type, .path=path, .data=data, .versionMajor=vMajor, .versionMinor=vMinor});
+    cb->findChild<QListWidget*>("list_lumps")->addItem(genName(name, type, path, data));
+}
+
+void CafBuilder::loadFile(QString file) {
+    cafShowMessage(this, QString("Opening File '" + file + "'"), true);
+
+    QFile qf(file);
+
+    if(!qf.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        cafShowMessage(this, QString("Failed to open file '" + file + "'"), true);
+        return;
+    }
+
+    clearBuilder(this);
+
+    while(!qf.atEnd()) {
+        auto data = qf.readLine().split(',');
+        pushLump(this, data[0], data[1], data[2], data[3], data[4].simplified().toInt(), data[5].simplified().toInt());
+    }
+
+    currentFile=file;
+    findChild<QListWidget*>("list_lumps")->setCurrentRow(0);
+    showCurrentLump();
+
+    cafShowMessage(this, QString("File '" + file + "' Opened"), true);
 }
 
 void CafBuilder::addLumpItem() {
@@ -39,13 +80,11 @@ void CafBuilder::addLumpItem() {
     unsigned vMajor = findChild<QSpinBox*>("sb_vmajor")->value();
     unsigned vMinor = findChild<QSpinBox*>("sb_vminor")->value();
 
-    QListWidget* qlv = findChild<QListWidget*>("list_lumps");
-    qlv->addItem(genName(name, type, path, data));
-    lumps.append({.name=name, .type=type, .path=path, .data=data, .versionMajor=vMajor, .versionMinor=vMinor });
+    pushLump(this, name, type, path, data, vMajor, vMinor);
 
     // Disable removing and applying since getCurrent() returns null at this point
 
-    findChild<QStatusBar*>("statusbar")->showMessage(QString("Added New LUMP \"") + name + "\"");
+    cafShowMessage(this, QString("Added New LUMP '") + name + "'");
     findChild<QPushButton*>("pbtn_apply")->setEnabled(false);
     findChild<QPushButton*>("pbtn_rem")->setEnabled(false);
 }
@@ -60,7 +99,7 @@ void CafBuilder::showCurrentLump() {
     findChild<QSpinBox*>("sb_vmajor")->setValue(lumps[current].versionMajor);
     findChild<QSpinBox*>("sb_vminor")->setValue(lumps[current].versionMinor);
 
-    findChild<QStatusBar*>("statusbar")->showMessage(QString("Selected LUMP \"") + lumps[current].name + "\"");
+    cafShowMessage(this, QString("Selected LUMP '") + lumps[current].name + "'");
     findChild<QPushButton*>("pbtn_apply")->setEnabled(true);
     findChild<QPushButton*>("pbtn_rem")->setEnabled(true);
 }
@@ -77,7 +116,7 @@ void CafBuilder::applyLumpChange() {
 
     findChild<QListWidget*>("list_lumps")->item(current)->setText(genName(lumps[current].name, lumps[current].type, lumps[current].path, lumps[current].data));
 
-    findChild<QStatusBar*>("statusbar")->showMessage(QString("Modified LUMP \"") + lumps[current].name + "\"");
+    cafShowMessage(this, QString("Modified LUMP '") + lumps[current].name + "'");
 }
 
 void CafBuilder::removeCurrentLump() {
@@ -89,20 +128,25 @@ void CafBuilder::removeCurrentLump() {
     QListWidget* qlw = findChild<QListWidget*>("list_lumps");
     delete qlw->takeItem(current);
 
-    findChild<QStatusBar*>("statusbar")->showMessage(QString("Removed LUMP \"") + name + "\"");
+    cafShowMessage(this, QString("Removed LUMP '") + name + "'");
 
     findChild<QPushButton*>("pbtn_apply")->setEnabled(false);
     findChild<QPushButton*>("pbtn_rem")->setEnabled(false);
 }
 
 void CafBuilder::openQuitDialog() {
-    findChild<QStatusBar*>("statusbar")->showMessage(QString("Opening Quit Dialog"));
+    cafShowMessage(this, QString("Opening Quit Dialog"));
 
     QuitDialog qd(this);
 
     QObject::connect(&qd, SIGNAL(accepted()), this, SLOT(close()));
 
     qd.exec();
+}
+
+void CafBuilder::openFileDialog() {
+    QString fname = QFileDialog::getOpenFileName(this, tr("Open Comfy Asset Tool File (*.cbf *.caf)"), "", tr("Comfy Asset Tool Files (*.cbf *.caf)"));
+    loadFile(fname);
 }
 
 void CafBuilder::closeEvent(QCloseEvent *event) {

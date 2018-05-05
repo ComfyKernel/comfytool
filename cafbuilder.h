@@ -23,9 +23,12 @@ class CafBuilder : public QMainWindow {
 
 public:
     QList<Lump> lumps;
+    QString currentFile;
 
     explicit CafBuilder(QWidget *parent = 0);
     ~CafBuilder();
+
+    void loadFile(QString file = "");
 
 public slots:
     void addLumpItem();
@@ -33,6 +36,7 @@ public slots:
     void applyLumpChange();
     void removeCurrentLump();
     void openQuitDialog();
+    void openFileDialog();
 
     void closeEvent(QCloseEvent *event);
 
