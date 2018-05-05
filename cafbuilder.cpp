@@ -1,7 +1,10 @@
 #include "cafbuilder.h"
 #include "ui_cafbuilder.h"
-#include "quitdialog.h"
 
+#include "quitdialog.h"
+#include "cafrootsettings.h"
+
+#include <QDesktopWidget>
 #include <QListWidget>
 #include <QCloseEvent>
 #include <QFileDialog>
@@ -20,7 +23,12 @@ CafBuilder::CafBuilder(QWidget *parent) :
     QObject::connect(findChild<QPushButton*>("pbtn_add"  ), SIGNAL(clicked(bool)  ), this, SLOT(addLumpItem()));
     QObject::connect(findChild<QPushButton*>("pbtn_apply"), SIGNAL(clicked(bool)  ), this, SLOT(applyLumpChange()));
     QObject::connect(findChild<QPushButton*>("pbtn_rem"  ), SIGNAL(clicked(bool)  ), this, SLOT(removeCurrentLump()));
-    QObject::connect(findChild<  QAction*  >("actionOpen"), SIGNAL(triggered(bool)), this, SLOT(openFileDialog()));
+
+    QObject::connect(findChild<  QAction*  >("actionOpen"   ), SIGNAL(triggered(bool)), this, SLOT(openFileDialog()));
+    QObject::connect(findChild<  QAction*  >("actionSave"   ), SIGNAL(triggered(bool)), this, SLOT(saveFile()));
+    QObject::connect(findChild<  QAction*  >("actionSave_As"), SIGNAL(triggered(bool)), this, SLOT(openSaveFileDialog()));
+
+    QObject::connect(findChild<  QAction*  >("actionRoot_Settings"), SIGNAL(triggered(bool)), this, SLOT(openRootSettings()));
 }
 
 QString genName(QString name, QString type, QString path, QString data) {
@@ -44,6 +52,8 @@ void cafShowMessage(CafBuilder* cb, QString msg, bool log=false) {
 void pushLump(CafBuilder* cb, QString name, QString type, QString path, QString data, unsigned vMajor=1, unsigned vMinor=0) {
     cb->lumps.append({.name=name, .type=type, .path=path, .data=data, .versionMajor=vMajor, .versionMinor=vMinor});
     cb->findChild<QListWidget*>("list_lumps")->addItem(genName(name, type, path, data));
+    cb->findChild<QListWidget*>("list_lumps")->setCurrentRow(cb->lumps.length() - 1);
+    cb->showCurrentLump();
 }
 
 void CafBuilder::loadFile(QString file) {
@@ -60,8 +70,20 @@ void CafBuilder::loadFile(QString file) {
 
     while(!qf.atEnd()) {
         auto data = qf.readLine().split(',');
+
+        if(data[0] == "ROOT") {
+            assetPath = data[1];
+            avMajor   = data[2].simplified().toInt();
+            avMinor   = data[3].simplified().toInt();
+            avRev     = data[4].simplified().toInt();
+
+            continue;
+        }
+
         pushLump(this, data[0], data[1], data[2], data[3], data[4].simplified().toInt(), data[5].simplified().toInt());
     }
+
+    qf.close();
 
     currentFile=file;
     findChild<QListWidget*>("list_lumps")->setCurrentRow(0);
@@ -145,8 +167,78 @@ void CafBuilder::openQuitDialog() {
 }
 
 void CafBuilder::openFileDialog() {
-    QString fname = QFileDialog::getOpenFileName(this, tr("Open Comfy Asset Tool File (*.cbf *.caf)"), "", tr("Comfy Asset Tool Files (*.cbf *.caf)"));
+    QString fname = QFileDialog::getOpenFileName(this, tr("Open Comfy Asset Tool File (*.cbf *.caf)"), "", tr("Comfy Asset Builder File (*.cbf);;Comfy Asset File (*.caf)"));
     loadFile(fname);
+}
+
+void CafBuilder::openSaveFileDialog() {
+    QString fname = QFileDialog::getSaveFileName(this, tr("Save Comfy Asset Tool File (*.cbf *.caf)"), currentFile, tr("Comfy Asset Builder File (*.cbf);;Comfy Asset File (*.caf)"));
+    if(fname.isEmpty()) return;
+
+    currentFile = fname;
+    saveFile();
+}
+
+void CafBuilder::saveFile() {
+    if(currentFile.isEmpty()) {
+        openSaveFileDialog();
+        return;
+    }
+
+    QFile qf(currentFile);
+
+    cafShowMessage(this, QString("Saving File '" + currentFile + "'"), true);
+
+    if(!qf.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        cafShowMessage(this, QString("Failed to open file '" + currentFile + "' for saving"), true);
+        return;
+    }
+
+    std::string rstr = QString(QString("ROOT,") + assetPath + "," + QString::number(avMajor) + "," + QString::number(avMinor) + "," + QString::number(avRev) + "\n").toStdString();
+    qf.write((const char*)rstr.c_str());
+
+    for(const auto& l : lumps) {
+        std::string str = QString(l.name + "," + l.type + "," + l.path + "," + l.data + "," + QString::number(l.versionMajor) + "," + QString::number(l.versionMinor) + "\n").toStdString();
+
+        qf.write((const char*)str.c_str());
+    }
+
+    qf.close();
+
+    cafShowMessage(this, QString("File '" + currentFile + "' Saved!"), true);
+}
+
+void CafBuilder::openRootSettings() {
+    cafShowMessage(this, "Editing Root Settings");
+
+    CafRootSettings crs(this);
+    diaREF = &crs;
+
+    crs.findChild<QLineEdit*>("le_rootname")->setText(assetPath);
+    crs.findChild<QSpinBox*>("sb_vmajor")->setValue(avMajor);
+    crs.findChild<QSpinBox*>("sb_vminor")->setValue(avMinor);
+    crs.findChild<QSpinBox*>("sb_vrev"  )->setValue(avRev  );
+
+    QObject::connect(crs.findChild<QPushButton*>("pbtn_apply"), SIGNAL(clicked(bool)), this, SLOT(applyRootChanges()));
+
+    if(crs.exec() == QDialog::Accepted) {
+        applyRootChanges();
+        return;
+    }
+
+    cafShowMessage(this, "Root Settings Change Cancelled");
+}
+
+void CafBuilder::applyRootChanges() {
+    CafRootSettings* crs = (CafRootSettings*)diaREF;
+
+    assetPath = crs->findChild<QLineEdit*>("le_rootname")->text();
+
+    avMajor = crs->findChild<QSpinBox*>("sb_vmajor")->value();
+    avMinor = crs->findChild<QSpinBox*>("sb_vminor")->value();
+    avRev   = crs->findChild<QSpinBox*>("sb_vrev"  )->value();
+
+    cafShowMessage(this, "Changed Root Settings");
 }
 
 void CafBuilder::closeEvent(QCloseEvent *event) {

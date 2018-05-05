@@ -1,7 +1,7 @@
 #include "quitdialog.h"
 #include "ui_quitdialog.h"
 
-#include <QStyle>
+#include <QMainWindow>
 
 QuitDialog::QuitDialog(QWidget *parent) :
     QDialog(parent),

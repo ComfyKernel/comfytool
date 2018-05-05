@@ -28,17 +28,20 @@ SOURCES += \
         mainwindow.cpp \
         toolchooser.cpp \
         cafbuilder.cpp \
-        quitdialog.cpp
+        quitdialog.cpp \
+    cafrootsettings.cpp
 
 HEADERS += \
         mainwindow.h \
         toolchooser.h \
         cafbuilder.h \
-        quitdialog.h
+        quitdialog.h \
+    cafrootsettings.h
 
 FORMS += \
-        mainwindow.ui \
+        mainwindow.ui  \
         toolchooser.ui \
-        cafbuilder.ui \
-        quitdialog.ui
+        cafbuilder.ui  \
+        quitdialog.ui  \
+        cafrootsettings.ui
 

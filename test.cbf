@@ -1,0 +1,4 @@
+ROOT,/test_caf/,1,0,0
+metadata,text/metadata,/,caf.metadata,1,0
+test,images/png,/resources/,test.png,1,0
+test2,images/png,/resources/,test2.png,1,0

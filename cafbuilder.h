@@ -25,6 +25,11 @@ public:
     QList<Lump> lumps;
     QString currentFile;
 
+    QString assetPath;
+    unsigned avMajor, avMinor, avRev;
+
+    void* diaREF;
+
     explicit CafBuilder(QWidget *parent = 0);
     ~CafBuilder();
 
@@ -35,8 +40,14 @@ public slots:
     void showCurrentLump();
     void applyLumpChange();
     void removeCurrentLump();
+
     void openQuitDialog();
     void openFileDialog();
+    void openSaveFileDialog();
+    void saveFile();
+
+    void openRootSettings();
+    void applyRootChanges();
 
     void closeEvent(QCloseEvent *event);
 

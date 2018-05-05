@@ -20,7 +20,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Quit CAF Builder?</string>
   </property>
   <layout class="QGridLayout" name="glayout">
    <item row="1" column="0" alignment="Qt::AlignBottom">
