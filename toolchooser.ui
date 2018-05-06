@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>276</width>
-    <height>242</height>
+    <height>284</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -40,6 +40,13 @@
       </property>
       <property name="alignment">
        <set>Qt::AlignHCenter|Qt::AlignTop</set>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="pbtn_cafbrowse">
+      <property name="text">
+       <string>CAF Browser</string>
       </property>
      </widget>
     </item>
@@ -160,6 +167,22 @@
     <hint type="destinationlabel">
      <x>137</x>
      <y>120</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_cafbrowse</sender>
+   <signal>clicked()</signal>
+   <receiver>ToolChooser</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>137</x>
+     <y>49</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>137</x>
+     <y>141</y>
     </hint>
    </hints>
   </connection>

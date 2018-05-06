@@ -1,22 +1,12 @@
 #ifndef CAFBUILDER_H
 #define CAFBUILDER_H
 
+#include "lump.h"
 #include <QMainWindow>
 
 namespace Ui {
   class CafBuilder;
 }
-
-struct Lump {
-public:
-    QString name;
-    QString type;
-    QString path;
-    QString data;
-
-    unsigned int versionMajor;
-    unsigned int versionMinor;
-};
 
 class CafBuilder : public QMainWindow {
     Q_OBJECT

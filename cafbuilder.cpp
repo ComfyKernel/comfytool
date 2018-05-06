@@ -249,13 +249,6 @@ void CafBuilder::buildCAF() {
     QString fname = QFileDialog::getSaveFileName(this, tr("Build CAF File (*.caf)"), currentFile.split('.')[0], tr("Comfy Asset File (*.caf)"));
     if(fname.isEmpty()) return;
 
-    QProgressDialog qpd(this);
-    qpd.setLabelText(QString("Building CAF File '") + fname + "'");
-    qpd.setAutoClose(true);
-    qpd.setWindowModality(Qt::WindowModal);
-    qpd.setMaximum(lumps.size());
-    qpd.exec();
-
     QFile qf(fname);
 
     if(!qf.open(QIODevice::WriteOnly)) {
@@ -289,20 +282,18 @@ void CafBuilder::buildCAF() {
     // Write LUMPS //
 
     for(unsigned int l=0; l<lumps.length(); ++l) {
-        qpd.setValue(l);
         const Lump& i = lumps[l];
-
-        qpd.setLabelText(QString("Building CAF File '") + fname + "' : On LUMP '" + i.name + "'");
 
         QString fpath = fname;
         fpath.chop(fpath.length() - fpath.lastIndexOf('/') - 1);
         fpath += i.data;
 
+        cafShowMessage(this, QString("Building LUMP '") + i.name + "' With File '" + fpath + "'", true);
+
         QFile qfl(fpath);
         if(!qfl.open(QIODevice::ReadOnly)) {
             cafShowMessage(this, QString("Failed to open file '" + fpath + "' used in LUMP '" + i.name + "'"), true);
             qf.close();
-            qpd.close();
             return;
         }
 
@@ -341,8 +332,6 @@ void CafBuilder::buildCAF() {
     /////////////////
 
     qf.close();
-
-    qpd.close();
 
     cafShowMessage(this, "Finished Building CAF");
 }
