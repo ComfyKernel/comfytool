@@ -49,6 +49,8 @@ public slots:
     void openRootSettings();
     void applyRootChanges();
 
+    void buildCAF();
+
     void closeEvent(QCloseEvent *event);
 
 private:

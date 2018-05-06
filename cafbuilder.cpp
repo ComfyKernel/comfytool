@@ -4,6 +4,7 @@
 #include "quitdialog.h"
 #include "cafrootsettings.h"
 
+#include <QProgressDialog>
 #include <QDesktopWidget>
 #include <QListWidget>
 #include <QCloseEvent>
@@ -28,6 +29,7 @@ CafBuilder::CafBuilder(QWidget *parent) :
     QObject::connect(findChild<  QAction*  >("actionSave"   ), SIGNAL(triggered(bool)), this, SLOT(saveFile()));
     QObject::connect(findChild<  QAction*  >("actionSave_As"), SIGNAL(triggered(bool)), this, SLOT(openSaveFileDialog()));
 
+    QObject::connect(findChild<  QAction*  >("actionBuild_2"      ), SIGNAL(triggered(bool)), this, SLOT(buildCAF()));
     QObject::connect(findChild<  QAction*  >("actionRoot_Settings"), SIGNAL(triggered(bool)), this, SLOT(openRootSettings()));
 }
 
@@ -239,6 +241,110 @@ void CafBuilder::applyRootChanges() {
     avRev   = crs->findChild<QSpinBox*>("sb_vrev"  )->value();
 
     cafShowMessage(this, "Changed Root Settings");
+}
+
+void CafBuilder::buildCAF() {
+    cafShowMessage(this, "Building CAF File");
+
+    QString fname = QFileDialog::getSaveFileName(this, tr("Build CAF File (*.caf)"), currentFile.split('.')[0], tr("Comfy Asset File (*.caf)"));
+    if(fname.isEmpty()) return;
+
+    QProgressDialog qpd(this);
+    qpd.setLabelText(QString("Building CAF File '") + fname + "'");
+    qpd.setAutoClose(true);
+    qpd.setWindowModality(Qt::WindowModal);
+    qpd.setMaximum(lumps.size());
+    qpd.exec();
+
+    QFile qf(fname);
+
+    if(!qf.open(QIODevice::WriteOnly)) {
+        cafShowMessage(this, QString("Failed to open file '" + currentFile + "' for building"), true);
+        return;
+    }
+
+    // Write HEAD //
+
+    unsigned int c_off;
+
+    qf.write("CAF");
+
+    uint16_t ct_us = avMajor;
+    qf.write((const char*)&ct_us, 2);                    // CAF Major version
+    ct_us = avMinor;
+    qf.write((const char*)&ct_us, 2);                    // CAF Minor version
+
+    uint32_t ct_ui = avRev;
+    qf.write((const char*)&ct_ui, 4);                    // Asset Revision
+    ct_ui = 15 + assetPath.length() + 1;
+    qf.write((const char*)&ct_ui, 4);                    // Pointer to first LUMPITEM
+
+    std::string ct_string = assetPath.toStdString();
+    qf.write(ct_string.c_str(), ct_string.length() + 1); // Asset Path
+
+    c_off = 15 + assetPath.length() + 1;
+
+    ////////////////
+
+    // Write LUMPS //
+
+    for(unsigned int l=0; l<lumps.length(); ++l) {
+        qpd.setValue(l);
+        const Lump& i = lumps[l];
+
+        qpd.setLabelText(QString("Building CAF File '") + fname + "' : On LUMP '" + i.name + "'");
+
+        QString fpath = fname;
+        fpath.chop(fpath.length() - fpath.lastIndexOf('/') - 1);
+        fpath += i.data;
+
+        QFile qfl(fpath);
+        if(!qfl.open(QIODevice::ReadOnly)) {
+            cafShowMessage(this, QString("Failed to open file '" + fpath + "' used in LUMP '" + i.name + "'"), true);
+            qf.close();
+            qpd.close();
+            return;
+        }
+
+        // Write Flags !!STUB!!
+        if(l != lumps.length() - 1) {
+            ct_us = 0b1000000000000000;
+        } else {
+            ct_us = 0;
+        }
+        qf.write((const char*)&ct_us, 2);                         // Flag A
+        ct_us = 0;
+        qf.write((const char*)&ct_us, 2);                         // Flag B
+
+        // Write Attributes
+        unsigned int frd_size = 18 + i.name.length() + i.path.length() + i.type.length();
+        unsigned int prd_size = qfl.size() + frd_size;
+        ct_ui = prd_size;
+        qf.write((const char*)&ct_ui, 4);                         // LUMP Size
+        ct_ui = c_off + frd_size;
+        qf.write((const char*)&ct_ui, 4);                         // LUMP Pointer
+
+        ct_string = i.name.toStdString();
+        qf.write(ct_string.c_str(), ct_string.length() + 1);      // LUMP Name
+        ct_string = i.path.toStdString();
+        qf.write(ct_string.c_str(), ct_string.length() + 1);      // LUMP Path
+        ct_string = i.type.toStdString();
+        qf.write(ct_string.c_str(), ct_string.length() + 1);      // LUMP Type
+
+        c_off += prd_size;
+
+        qf.write(qfl.readAll());
+
+        qfl.close();
+    }
+
+    /////////////////
+
+    qf.close();
+
+    qpd.close();
+
+    cafShowMessage(this, "Finished Building CAF");
 }
 
 void CafBuilder::closeEvent(QCloseEvent *event) {
