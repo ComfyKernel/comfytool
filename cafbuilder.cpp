@@ -303,9 +303,9 @@ void CafBuilder::buildCAF() {
         } else {
             ct_us = 0;
         }
-        qf.write((const char*)&ct_us, 2);                         // Flag A
+        qf.write((const char*)(&ct_us) + 1, 1);                         // Flag A
         ct_us = 0;
-        qf.write((const char*)&ct_us, 2);                         // Flag B
+        qf.write((const char*)(&ct_us) + 1, 1);                         // Flag B
 
         // Write Attributes
         unsigned int frd_size = 18 + i.name.length() + i.path.length() + i.type.length();
