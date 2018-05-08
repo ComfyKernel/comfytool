@@ -1,14 +1,12 @@
-#include "toolchooser.h"
-
 #include <QApplication>
-#include <QWidget>
-#include <QDebug>
+
+#include "uicomfytool.h"
 
 int main(int argc, char *argv[]) {
-    QApplication a(argc, argv);
-    ToolChooser tc;
+    QApplication qapp(argc, argv);
 
-    tc.show();
+    UIcomfytool uct;
+    uct.show();
 
-    return a.exec();
+    return qapp.exec();
 }

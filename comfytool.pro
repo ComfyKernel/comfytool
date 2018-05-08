@@ -24,28 +24,17 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += \
-        main.cpp \
-        mainwindow.cpp \
-        toolchooser.cpp \
-        cafbuilder.cpp \
-        quitdialog.cpp \
-    cafrootsettings.cpp \
-    cafbrowser.cpp
+    main.cpp \
+    uicomfytool.cpp \
+    uihometab.cpp \
+    uicafbuildertab.cpp
 
 HEADERS += \
-        mainwindow.h \
-        toolchooser.h \
-        cafbuilder.h \
-        quitdialog.h \
-    cafrootsettings.h \
-    cafbrowser.h \
-    lump.h
+    uicomfytool.h \
+    uihometab.h \
+    uicafbuildertab.h
 
 FORMS += \
-        mainwindow.ui      \
-        toolchooser.ui     \
-        cafbuilder.ui      \
-        quitdialog.ui      \
-        cafrootsettings.ui \
-        cafbrowser.ui
-
+    uicomfytool.ui \
+    uihometab.ui \
+    uicafbuildertab.ui
