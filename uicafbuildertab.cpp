@@ -2,6 +2,7 @@
 #include "ui_uicafbuildertab.h"
 
 #include "uicafbuilderrootinfo.h"
+#include "uicafbuildertablumpinfo.h"
 
 #include <QGridLayout>
 #include <QMessageBox>
@@ -77,6 +78,14 @@ void UIcafbuildertab::parseCXF(QString name, QXmlStreamReader *qxsr) {
                         l.path = a.value().toString();
                         continue;
                     }
+                    if(a.name() == "type") {
+                        l.type = a.value().toString();
+                        continue;
+                    }
+                    if(a.name() == "data") {
+                        l.datapath = a.value().toString();
+                        continue;
+                    }
                 }
                 addVisItem(QString("[LUMP] ") + l.path + l.name, l);
             }
@@ -91,7 +100,17 @@ void UIcafbuildertab::parseCXF(QString name, QXmlStreamReader *qxsr) {
     buildWidget->itemAt(0, 0)->setText(QString("[ROOT] ") + rootInfo.path);
 }
 
+unsigned currentLump(UIcafbuildertab* cbt) {
+    return cbt->buildWidget->currentRow() - 1;
+}
+
 void UIcafbuildertab::updateInfoPanel(int current) {
+    if(panelWidget != nullptr) {
+        findChild<QGridLayout*>("gl_panel")->removeWidget(panelWidget);
+        panelWidget->close();
+        delete panelWidget;
+    }
+
     if(!current) {
         qInfo()<<"Changing panel to show ROOTINFO";
         UIcafbuilderrootinfo* cbri = new UIcafbuilderrootinfo(findChild<QFrame*>("fr_panel"));
@@ -105,7 +124,20 @@ void UIcafbuildertab::updateInfoPanel(int current) {
 
         panelWidget = cbri;
         cbri->show();
+        return;
     }
+
+    qInfo()<<"Changing panel to show LUMPINFO";
+    UIcafbuildertablumpinfo* cbli = new UIcafbuildertablumpinfo(findChild<QFrame*>("fr_panel"));
+    findChild<QGridLayout*>("gl_panel")->addWidget(cbli, 0, 0, 1, 1, Qt::Alignment());
+
+    cbli->findChild<QLineEdit*>("le_name")->setText(lumps[currentLump(this)].name);
+    cbli->findChild<QLineEdit*>("le_path")->setText(lumps[currentLump(this)].path);
+    cbli->findChild<QLineEdit*>("le_type")->setText(lumps[currentLump(this)].type);
+    cbli->findChild<QLineEdit*>("le_data")->setText(lumps[currentLump(this)].datapath);
+
+    cbli->show();
+    panelWidget = cbli;
 }
 
 void UIcafbuildertab::applyRootSettings() {

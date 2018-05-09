@@ -28,17 +28,20 @@ SOURCES += \
     uicomfytool.cpp \
     uihometab.cpp \
     uicafbuildertab.cpp \
-    uicafbuilderrootinfo.cpp
+    uicafbuilderrootinfo.cpp \
+    uicafbuildertablumpinfo.cpp
 
 HEADERS += \
     uicomfytool.h \
     uihometab.h \
     uicafbuildertab.h \
     uicafbuilderrootinfo.h \
-    lump.h
+    lump.h \
+    uicafbuildertablumpinfo.h
 
 FORMS += \
     uicomfytool.ui \
     uihometab.ui \
     uicafbuildertab.ui \
-    uicafbuilderrootinfo.ui
+    uicafbuilderrootinfo.ui \
+    uicafbuildertablumpinfo.ui
