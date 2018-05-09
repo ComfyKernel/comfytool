@@ -34,7 +34,8 @@ HEADERS += \
     uicomfytool.h \
     uihometab.h \
     uicafbuildertab.h \
-    uicafbuilderrootinfo.h
+    uicafbuilderrootinfo.h \
+    lump.h
 
 FORMS += \
     uicomfytool.ui \

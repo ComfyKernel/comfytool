@@ -20,7 +20,7 @@ UIcafbuildertab::UIcafbuildertab(QWidget *parent) :
 }
 
 void addRoot(UIcafbuildertab* ucb) {
-    ucb->buildWidget->addItem("Root");
+    ucb->buildWidget->addItem("[ROOT]");
 }
 
 void UIcafbuildertab::loadFile(QString name) {
@@ -64,6 +64,22 @@ void UIcafbuildertab::parseCXF(QString name, QXmlStreamReader *qxsr) {
                     }
                 }
             }
+
+            if(qxsr->name() == "lumpitem") {
+                Lump l;
+                QXmlStreamAttributes qxsa = qxsr->attributes();
+                for(const QXmlStreamAttribute& a : qxsa) {
+                    if(a.name() == "name") {
+                        l.name = a.value().toString();
+                        continue;
+                    }
+                    if(a.name() == "path") {
+                        l.path = a.value().toString();
+                        continue;
+                    }
+                }
+                addVisItem(QString("[LUMP] ") + l.path + l.name, l);
+            }
         }
     }
 
@@ -71,6 +87,8 @@ void UIcafbuildertab::parseCXF(QString name, QXmlStreamReader *qxsr) {
         QMessageBox::critical(this, "Failed parsing CXF", qxsr->errorString(), QMessageBox::Ok);
         return;
     }
+
+    buildWidget->itemAt(0, 0)->setText(QString("[ROOT] ") + rootInfo.path);
 }
 
 void UIcafbuildertab::updateInfoPanel(int current) {
@@ -96,6 +114,11 @@ void UIcafbuildertab::applyRootSettings() {
     rootInfo.cvMinor  = cbri->findChild<QSpinBox*>("sb_cvMinor")->value();
     rootInfo.revision = cbri->findChild<QSpinBox*>("sb_revision")->value();
     rootInfo.path     = cbri->findChild<QLineEdit*>("le_path")->text();
+}
+
+void UIcafbuildertab::addVisItem(QString name, Lump l) {
+    lumps.append(l);
+    buildWidget->addItem(name);
 }
 
 UIcafbuildertab::~UIcafbuildertab() {
