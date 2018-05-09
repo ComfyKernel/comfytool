@@ -27,14 +27,17 @@ SOURCES += \
     main.cpp \
     uicomfytool.cpp \
     uihometab.cpp \
-    uicafbuildertab.cpp
+    uicafbuildertab.cpp \
+    uicafbuilderrootinfo.cpp
 
 HEADERS += \
     uicomfytool.h \
     uihometab.h \
-    uicafbuildertab.h
+    uicafbuildertab.h \
+    uicafbuilderrootinfo.h
 
 FORMS += \
     uicomfytool.ui \
     uihometab.ui \
-    uicafbuildertab.ui
+    uicafbuildertab.ui \
+    uicafbuilderrootinfo.ui

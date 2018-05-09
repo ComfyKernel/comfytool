@@ -58,12 +58,25 @@ void UIcomfytool::openHomeTab() {
     addMainbarTab("Home", ht);
 }
 
-void UIcomfytool::openCAFBuilder(QString name) {
+void UIcomfytool::openCAFBuilder(QString name, QXmlStreamReader* qsr) {
+    if(name.isEmpty() && qsr == nullptr) {
+        QMessageBox::critical(this, "Error opening CAF Builder", "File name ref and XML Parser are null", QMessageBox::Ok);
+        return;
+    }
     UIcafbuildertab* cafbuilder = new UIcafbuildertab();
+
     QString tabName = name;
     tabName.remove(0, tabName.lastIndexOf('/') + 1);
+
     addMainbarTab(QString("Builder : ") + tabName, cafbuilder);
-    cafbuilder->loadFile(name);
+    mainTabBar->setCurrentIndex(mainTabBar->count() - 1);
+
+    if(qsr == nullptr) {
+        cafbuilder->loadFile(name);
+        return;
+    }
+
+    cafbuilder->parseCXF(name, qsr);
 }
 
 void UIcomfytool::openFileDialog() {
@@ -77,9 +90,47 @@ void UIcomfytool::openFileDialog() {
 
     qInfo()<<"Opening file '"<<fname<<"' (extension '"<<ext<<"')";
 
-    if(ext == ".cbf") {
-        qInfo()<<"Opening CBF (Comfy Builder File)";
-        openCAFBuilder(fname);
+    if(ext == ".cxf") {
+        QFile* qf = new QFile(fname);
+
+        if(!qf->open(QIODevice::ReadOnly | QIODevice::Text)) {
+            QMessageBox::critical(this, "Failed loading CXF!", QString("Failed to open CXF (xml) file '") + fname + "'", QMessageBox::Ok);
+            return;
+        }
+
+        QXmlStreamReader* qxsr = new QXmlStreamReader(qf);
+        qInfo()<<"Opening CXF (Comfy XML File)";
+
+        qInfo()<<"Finding CXF Type";
+        while(!qxsr->atEnd() && !qxsr->hasError()) {
+            QXmlStreamReader::TokenType token = qxsr->readNext();
+
+            if(token == QXmlStreamReader::StartDocument) {
+                continue;
+            }
+
+            if(token == QXmlStreamReader::StartElement) {
+                if(qxsr->name() == "root") {
+                    QXmlStreamAttributes attrs = qxsr->attributes();
+                    for(const QXmlStreamAttribute& a : attrs) {
+                        if(a.name() == "type") {
+                            qInfo()<<"Type found";
+                            if(a.value() == "cafbuilder") {
+                                openCAFBuilder(fname, qxsr);
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if(qxsr->hasError()) {
+            QMessageBox::critical(this, "CXF XML Parsing Error", QString(qxsr->errorString()), QMessageBox::Ok);
+            return;
+        }
+
+        QMessageBox::critical(this, "Unable to find type", QString("Cannot decipher type for file '") + fname + "'. Check for missing attribute 'type' on root.", QMessageBox::Ok);
         return;
     }
 }

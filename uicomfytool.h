@@ -1,6 +1,7 @@
 #ifndef UICOMFYTOOL_H
 #define UICOMFYTOOL_H
 
+#include <QXmlStreamReader>
 #include <QMainWindow>
 #include <QCloseEvent>
 
@@ -24,7 +25,7 @@ public slots:
     void addMainbarTab   (QString name="New Tab", QWidget* qw=nullptr);
     void removeMainbarTab(int tab=0);
     void openHomeTab();
-    void openCAFBuilder(QString name="");
+    void openCAFBuilder(QString name="", QXmlStreamReader* qsr=nullptr);
 
     void openFileDialog  ();
 
