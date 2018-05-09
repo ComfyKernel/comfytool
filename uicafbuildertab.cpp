@@ -136,6 +136,11 @@ void UIcafbuildertab::updateInfoPanel(int current) {
     cbli->findChild<QLineEdit*>("le_type")->setText(lumps[currentLump(this)].type);
     cbli->findChild<QLineEdit*>("le_data")->setText(lumps[currentLump(this)].datapath);
 
+    connect(cbli->findChild<QLineEdit*>("le_name"), SIGNAL(textChanged(QString)), this, SLOT(setUnsaved()));
+    connect(cbli->findChild<QLineEdit*>("le_path"), SIGNAL(textChanged(QString)), this, SLOT(setUnsaved()));
+    connect(cbli->findChild<QLineEdit*>("le_type"), SIGNAL(textChanged(QString)), this, SLOT(setUnsaved()));
+    connect(cbli->findChild<QLineEdit*>("le_data"), SIGNAL(textChanged(QString)), this, SLOT(setUnsaved()));
+
     cbli->show();
     panelWidget = cbli;
 }
@@ -151,6 +156,10 @@ void UIcafbuildertab::applyRootSettings() {
 void UIcafbuildertab::addVisItem(QString name, Lump l) {
     lumps.append(l);
     buildWidget->addItem(name);
+}
+
+void UIcafbuildertab::setUnsaved() {
+
 }
 
 UIcafbuildertab::~UIcafbuildertab() {

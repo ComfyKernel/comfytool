@@ -40,6 +40,7 @@ public slots:
     void applyRootSettings();
 
     void addVisItem(QString name="New Item", Lump lump=Lump());
+    void setUnsaved();
 
 private:
     Ui::UIcafbuildertab *ui;

@@ -15,6 +15,9 @@ public:
     explicit UIcafbuildertablumpinfo(QWidget *parent = 0);
     ~UIcafbuildertablumpinfo();
 
+public slots:
+    void openFileSearch();
+
 private:
     Ui::UIcafbuildertablumpinfo *ui;
 };
