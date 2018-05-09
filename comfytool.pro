@@ -45,3 +45,6 @@ FORMS += \
     uicafbuildertab.ui \
     uicafbuilderrootinfo.ui \
     uicafbuildertablumpinfo.ui
+
+DISTFILES += \
+    caftesting/test.cxf

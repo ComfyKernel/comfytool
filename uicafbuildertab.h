@@ -5,6 +5,7 @@
 #include <QListWidget>
 #include <QWidget>
 
+#include "uicomfytool.h"
 #include "lump.h"
 
 namespace Ui {
@@ -15,10 +16,15 @@ class UIcafbuildertab : public QWidget {
     Q_OBJECT
 
 public:
-    QString currentFile;
+    bool unsaved = false;
+    unsigned changedItems = 0;
 
-    QListWidget* buildWidget;
-    QWidget*     panelWidget;
+    QString currentFile = "";
+
+    QListWidget* buildWidget = nullptr;
+    QWidget*     panelWidget = nullptr;
+
+    UIcomfytool* _ct = nullptr;
 
     struct {
         unsigned cvMajor = 1;
@@ -38,6 +44,10 @@ public slots:
 
     void updateInfoPanel(int current=0);
     void applyRootSettings();
+    void applyLumpSettings();
+    void resetRootSettings();
+    void resetLumpSettings();
+    void openSaveDialog();
 
     void addVisItem(QString name="New Item", Lump lump=Lump());
     void setUnsaved();

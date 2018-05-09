@@ -86,6 +86,10 @@ void UIcafbuildertab::parseCXF(QString name, QXmlStreamReader *qxsr) {
                         l.datapath = a.value().toString();
                         continue;
                     }
+                    if(a.name() == "revision") {
+                        l.revision = a.value().toUInt();
+                        continue;
+                    }
                 }
                 addVisItem(QString("[LUMP] ") + l.path + l.name, l);
             }
@@ -106,28 +110,41 @@ unsigned currentLump(UIcafbuildertab* cbt) {
 
 void UIcafbuildertab::updateInfoPanel(int current) {
     if(panelWidget != nullptr) {
+        //qInfo()<<panelWidget->metaObject()->className();
+        if(QString(panelWidget->metaObject()->className()) == "UIcafbuilderrootinfo") {
+            //qInfo()<<"Is Root Info";
+            applyRootSettings();
+        } else if(QString(panelWidget->metaObject()->className()) == "UIcafbuildertablumpinfo") {
+            //qInfo()<<"Is Lump Info";
+            applyLumpSettings();
+        }
+
         findChild<QGridLayout*>("gl_panel")->removeWidget(panelWidget);
         panelWidget->close();
         delete panelWidget;
     }
 
     if(!current) {
-        qInfo()<<"Changing panel to show ROOTINFO";
         UIcafbuilderrootinfo* cbri = new UIcafbuilderrootinfo(findChild<QFrame*>("fr_panel"));
         findChild<QGridLayout*>("gl_panel")->addWidget(cbri, 0, 0, 1, 1, Qt::Alignment());
-        cbri->findChild<QSpinBox*> ("sb_cvMajor")->setValue (rootInfo.cvMajor);
-        cbri->findChild<QSpinBox*> ("sb_cvMinor")->setValue (rootInfo.cvMinor);
-        cbri->findChild<QSpinBox*> ("sb_revision")->setValue(rootInfo.revision);
-        cbri->findChild<QLineEdit*>("le_path")->setText     (rootInfo.path);
 
-        connect(cbri->findChild<QPushButton*>("pbtn_apply"), SIGNAL(clicked(bool)), this, SLOT(applyRootSettings()));
+        cbri->findChild<QSpinBox* >("sb_cvMajor" )->setValue(rootInfo.cvMajor);
+        cbri->findChild<QSpinBox* >("sb_cvMinor" )->setValue(rootInfo.cvMinor);
+        cbri->findChild<QSpinBox* >("sb_revision")->setValue(rootInfo.revision);
+        cbri->findChild<QLineEdit*>("le_path"    )->setText (rootInfo.path);
+
+        connect(cbri->findChild<QSpinBox* >("sb_cvMajor" ), SIGNAL(valueChanged(  int  )), this, SLOT(setUnsaved()));
+        connect(cbri->findChild<QSpinBox* >("sb_cvMinor" ), SIGNAL(valueChanged(  int  )), this, SLOT(setUnsaved()));
+        connect(cbri->findChild<QSpinBox* >("sb_revision"), SIGNAL(valueChanged(  int  )), this, SLOT(setUnsaved()));
+        connect(cbri->findChild<QLineEdit*>("le_path"    ), SIGNAL(textChanged (QString)), this, SLOT(setUnsaved()));
+
+        connect(cbri->findChild<QPushButton*>("pbtn_reset"), SIGNAL(clicked(bool)), this, SLOT(resetRootSettings()));
 
         panelWidget = cbri;
         cbri->show();
         return;
     }
 
-    qInfo()<<"Changing panel to show LUMPINFO";
     UIcafbuildertablumpinfo* cbli = new UIcafbuildertablumpinfo(findChild<QFrame*>("fr_panel"));
     findChild<QGridLayout*>("gl_panel")->addWidget(cbli, 0, 0, 1, 1, Qt::Alignment());
 
@@ -135,11 +152,16 @@ void UIcafbuildertab::updateInfoPanel(int current) {
     cbli->findChild<QLineEdit*>("le_path")->setText(lumps[currentLump(this)].path);
     cbli->findChild<QLineEdit*>("le_type")->setText(lumps[currentLump(this)].type);
     cbli->findChild<QLineEdit*>("le_data")->setText(lumps[currentLump(this)].datapath);
+    cbli->findChild<QSpinBox*>("sb_revision")->setValue(lumps[currentLump(this)].revision);
 
     connect(cbli->findChild<QLineEdit*>("le_name"), SIGNAL(textChanged(QString)), this, SLOT(setUnsaved()));
     connect(cbli->findChild<QLineEdit*>("le_path"), SIGNAL(textChanged(QString)), this, SLOT(setUnsaved()));
     connect(cbli->findChild<QLineEdit*>("le_type"), SIGNAL(textChanged(QString)), this, SLOT(setUnsaved()));
     connect(cbli->findChild<QLineEdit*>("le_data"), SIGNAL(textChanged(QString)), this, SLOT(setUnsaved()));
+
+    connect(cbli->findChild<QSpinBox*>("sb_revision"), SIGNAL(valueChanged(int)), this, SLOT(setUnsaved()));
+
+    connect(cbli->findChild<QPushButton*>("pbtn_reset"), SIGNAL(clicked(bool)), this, SLOT(resetLumpSettings()));
 
     cbli->show();
     panelWidget = cbli;
@@ -153,13 +175,34 @@ void UIcafbuildertab::applyRootSettings() {
     rootInfo.path     = cbri->findChild<QLineEdit*>("le_path")->text();
 }
 
+void UIcafbuildertab::applyLumpSettings() {
+
+}
+
+void UIcafbuildertab::resetRootSettings() {
+    UIcafbuilderrootinfo* cbri = (UIcafbuilderrootinfo*)panelWidget;
+    cbri->findChild<QSpinBox*> ("sb_cvMajor" )->setValue(rootInfo.cvMajor);
+    cbri->findChild<QSpinBox*> ("sb_cvMinor" )->setValue(rootInfo.cvMinor);
+    cbri->findChild<QSpinBox*> ("sb_revision")->setValue(rootInfo.revision);
+    cbri->findChild<QLineEdit*>("le_path"    )->setText (rootInfo.path);
+}
+
+void UIcafbuildertab::resetLumpSettings() {
+    UIcafbuildertablumpinfo* cbli = (UIcafbuildertablumpinfo*)panelWidget;
+    cbli->findChild<QLineEdit*>("le_name")->setText(lumps[currentLump(this)].name);
+    cbli->findChild<QLineEdit*>("le_path")->setText(lumps[currentLump(this)].path);
+    cbli->findChild<QLineEdit*>("le_type")->setText(lumps[currentLump(this)].type);
+    cbli->findChild<QLineEdit*>("le_data")->setText(lumps[currentLump(this)].datapath);
+    cbli->findChild<QSpinBox*>("sb_revision")->setValue(lumps[currentLump(this)].revision);
+}
+
 void UIcafbuildertab::addVisItem(QString name, Lump l) {
     lumps.append(l);
     buildWidget->addItem(name);
 }
 
 void UIcafbuildertab::setUnsaved() {
-
+    _ct->mainTabBar->setTabText(_ct->mainTabBar->indexOf(this), QString("Builder : ") + QString(currentFile).remove(0, currentFile.lastIndexOf('/') + 1) + "*");
 }
 
 UIcafbuildertab::~UIcafbuildertab() {

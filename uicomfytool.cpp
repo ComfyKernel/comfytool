@@ -64,6 +64,7 @@ void UIcomfytool::openCAFBuilder(QString name, QXmlStreamReader* qsr) {
         return;
     }
     UIcafbuildertab* cafbuilder = new UIcafbuildertab();
+    cafbuilder->_ct = this;
 
     QString tabName = name;
     tabName.remove(0, tabName.lastIndexOf('/') + 1);
