@@ -116,7 +116,7 @@ void UIcafbuildertab::updateInfoPanel(int current) {
             applyRootSettings();
         } else if(QString(panelWidget->metaObject()->className()) == "UIcafbuildertablumpinfo") {
             //qInfo()<<"Is Lump Info";
-            applyLumpSettings();
+            applyLumpSettings(currLump);
         }
 
         findChild<QGridLayout*>("gl_panel")->removeWidget(panelWidget);
@@ -148,6 +148,8 @@ void UIcafbuildertab::updateInfoPanel(int current) {
     UIcafbuildertablumpinfo* cbli = new UIcafbuildertablumpinfo(findChild<QFrame*>("fr_panel"));
     findChild<QGridLayout*>("gl_panel")->addWidget(cbli, 0, 0, 1, 1, Qt::Alignment());
 
+    currLump = currentLump(this);
+
     cbli->findChild<QLineEdit*>("le_name")->setText(lumps[currentLump(this)].name);
     cbli->findChild<QLineEdit*>("le_path")->setText(lumps[currentLump(this)].path);
     cbli->findChild<QLineEdit*>("le_type")->setText(lumps[currentLump(this)].type);
@@ -175,8 +177,13 @@ void UIcafbuildertab::applyRootSettings() {
     rootInfo.path     = cbri->findChild<QLineEdit*>("le_path")->text();
 }
 
-void UIcafbuildertab::applyLumpSettings() {
-
+void UIcafbuildertab::applyLumpSettings(int lump) {
+    UIcafbuildertablumpinfo* cbli = (UIcafbuildertablumpinfo*)panelWidget;
+    lumps[lump].name = cbli->findChild<QLineEdit*>("le_name")->text();
+    lumps[lump].path = cbli->findChild<QLineEdit*>("le_path")->text();
+    lumps[lump].type = cbli->findChild<QLineEdit*>("le_type")->text();
+    lumps[lump].datapath = cbli->findChild<QLineEdit*>("le_data")->text();
+    lumps[lump].revision = cbli->findChild<QSpinBox*>("sb_revision")->value();
 }
 
 void UIcafbuildertab::resetRootSettings() {
@@ -203,6 +210,10 @@ void UIcafbuildertab::addVisItem(QString name, Lump l) {
 
 void UIcafbuildertab::setUnsaved() {
     _ct->mainTabBar->setTabText(_ct->mainTabBar->indexOf(this), QString("Builder : ") + QString(currentFile).remove(0, currentFile.lastIndexOf('/') + 1) + "*");
+}
+
+void UIcafbuildertab::openSaveDialog() {
+
 }
 
 UIcafbuildertab::~UIcafbuildertab() {

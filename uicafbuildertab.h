@@ -18,6 +18,7 @@ class UIcafbuildertab : public QWidget {
 public:
     bool unsaved = false;
     unsigned changedItems = 0;
+    unsigned currLump = 0;
 
     QString currentFile = "";
 
@@ -44,7 +45,7 @@ public slots:
 
     void updateInfoPanel(int current=0);
     void applyRootSettings();
-    void applyLumpSettings();
+    void applyLumpSettings(int lump=0);
     void resetRootSettings();
     void resetLumpSettings();
     void openSaveDialog();
