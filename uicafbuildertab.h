@@ -43,6 +43,7 @@ public:
 public slots:
     void saveFile(QString name="");
     void loadFile(QString name="");
+    void buildCAF();
     void parseCXF(QString name="", QXmlStreamReader* qxsr=nullptr);
 
     void updateInfoPanel(int current=0);
@@ -51,6 +52,8 @@ public slots:
     void resetRootSettings();
     void resetLumpSettings();
     void openSaveDialog(bool skipdialog);
+
+    void changeToolkit();
 
     void addVisItem(QString name="New Item", Lump lump=Lump());
     void setUnsaved();

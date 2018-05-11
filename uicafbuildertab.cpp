@@ -11,9 +11,12 @@
 #include <QPushButton>
 #include <QCheckBox>
 #include <QLineEdit>
+#include <QMenuBar>
 #include <QSpinBox>
+#include <QAction>
 #include <QDebug>
 #include <QFrame>
+#include <QMenu>
 
 UIcafbuildertab::UIcafbuildertab(QWidget *parent) :
     QWidget(parent),
@@ -263,6 +266,22 @@ void UIcafbuildertab::resetLumpSettings() {
 void UIcafbuildertab::addVisItem(QString name, Lump l) {
     lumps.append(l);
     buildWidget->addItem(name);
+}
+
+void UIcafbuildertab::changeToolkit() {
+    QMenuBar* mb = _ct->findChild<QMenuBar*>("menubar");
+    QMenu* m_caf = new QMenu(mb);
+    m_caf->setTitle("CAF Builder");
+    QAction* a_cafbuild = new QAction(m_caf);
+    a_cafbuild->setText("Build");
+    connect(a_cafbuild, SIGNAL(triggered(bool)), this, SLOT(buildCAF()));
+    m_caf->addAction(a_cafbuild);
+
+    mb->addMenu(m_caf);
+}
+
+void UIcafbuildertab::buildCAF() {
+
 }
 
 void UIcafbuildertab::setUnsaved() {
