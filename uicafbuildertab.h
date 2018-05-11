@@ -40,6 +40,7 @@ public:
     ~UIcafbuildertab();
 
 public slots:
+    void saveFile(QString name="");
     void loadFile(QString name="");
     void parseCXF(QString name="", QXmlStreamReader* qxsr=nullptr);
 

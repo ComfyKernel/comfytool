@@ -5,6 +5,7 @@
 #include "uicafbuildertablumpinfo.h"
 
 #include <QGridLayout>
+#include <QFileDialog>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QLineEdit>
@@ -213,7 +214,7 @@ void UIcafbuildertab::setUnsaved() {
 }
 
 void UIcafbuildertab::openSaveDialog() {
-
+    QString fname = QFileDialog::getSaveFileName(this, tr("Save CXF File"), "", tr("Comfy XML File (*.cxf)"));
 }
 
 UIcafbuildertab::~UIcafbuildertab() {
