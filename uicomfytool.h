@@ -15,6 +15,7 @@ class UIcomfytool : public QMainWindow
 
 public:
     QTabWidget* mainTabBar;
+    int current;
 
     explicit UIcomfytool(QWidget *parent = 0);
     ~UIcomfytool();
@@ -22,6 +23,7 @@ public:
 public slots:
     void closeEvent(QCloseEvent *event);
 
+    void updateMenubar();
     void addMainbarTab   (QString name="New Tab", QWidget* qw=nullptr);
     void removeMainbarTab(int tab=0);
     void openHomeTab();

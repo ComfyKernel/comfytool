@@ -20,10 +20,38 @@ UIcomfytool::UIcomfytool(QWidget *parent) :
     openHomeTab();
 
     connect(mainTabBar, SIGNAL(tabCloseRequested(int)), this, SLOT(removeMainbarTab(int)));
+    connect(mainTabBar, SIGNAL(currentChanged   (int)), this, SLOT(updateMenubar()));
 
     connect(findChild<QAction*>("actionOpen"), SIGNAL(triggered(bool)), this, SLOT(openFileDialog()));
     connect(findChild<QAction*>("actionSave"), SIGNAL(triggered(bool)), this, SLOT(openSaveDialog()));
     connect(findChild<QAction*>("actionSave_As"), SIGNAL(triggered(bool)), this, SLOT(openSaveAsDialog()));
+}
+
+void UIcomfytool::updateMenubar() {
+    int n_current = mainTabBar->currentIndex();
+
+    QMenuBar* mb = findChild<QMenuBar*>("menubar");
+    const auto ch = mb->children();
+    for(const auto& c : ch) {
+        if(QString(c->metaObject()->className()) == "QMenu") {
+            qInfo()<<"Menu Found";
+            QMenu* qm = (QMenu*)c;
+            qInfo()<<"Title : "<<qm->title();
+            if(QString(qm->title()) != "Fi&le") {
+                qm->close();
+                delete qm;
+            }
+        }
+    }
+
+    QWidget* w = mainTabBar->widget(n_current);
+    QString cname = w->metaObject()->className();
+    if(cname == "UIcafbuildertab") {
+        UIcafbuildertab* cbt = (UIcafbuildertab*)w;
+        cbt->changeToolkit();
+    }
+
+    current = n_current;
 }
 
 void UIcomfytool::closeEvent(QCloseEvent* event) {
@@ -84,7 +112,6 @@ void UIcomfytool::openCAFBuilder(QString name, QXmlStreamReader* qsr) {
     }
     UIcafbuildertab* cafbuilder = new UIcafbuildertab();
     cafbuilder->_ct = this;
-    cafbuilder->changeToolkit();
 
     QString tabName = name;
     tabName.remove(0, tabName.lastIndexOf('/') + 1);
