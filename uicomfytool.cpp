@@ -23,6 +23,7 @@ UIcomfytool::UIcomfytool(QWidget *parent) :
 
     connect(findChild<QAction*>("actionOpen"), SIGNAL(triggered(bool)), this, SLOT(openFileDialog()));
     connect(findChild<QAction*>("actionSave"), SIGNAL(triggered(bool)), this, SLOT(openSaveDialog()));
+    connect(findChild<QAction*>("actionSave_As"), SIGNAL(triggered(bool)), this, SLOT(openSaveAsDialog()));
 }
 
 void UIcomfytool::closeEvent(QCloseEvent* event) {
@@ -53,13 +54,21 @@ void UIcomfytool::addMainbarTab(QString name, QWidget* qw) {
     mainTabBar->addTab(qw, name);
 }
 
-void UIcomfytool::openSaveDialog() {
-    QString wname = mainTabBar->widget(mainTabBar->currentIndex())->metaObject()->className();
+void c_openSaveDialog(UIcomfytool* ct, bool showMenu) {
+    QString wname = ct->mainTabBar->widget(ct->mainTabBar->currentIndex())->metaObject()->className();
     if(wname == "UIcafbuildertab") {
-        UIcafbuildertab* cbt = (UIcafbuildertab*)mainTabBar->widget(mainTabBar->currentIndex());
-        cbt->openSaveDialog();
+        UIcafbuildertab* cbt = (UIcafbuildertab*)ct->mainTabBar->widget(ct->mainTabBar->currentIndex());
+        cbt->openSaveDialog(showMenu);
         return;
     }
+}
+
+void UIcomfytool::openSaveDialog() {
+    c_openSaveDialog(this, true);
+}
+
+void UIcomfytool::openSaveAsDialog() {
+    c_openSaveDialog(this, false);
 }
 
 void UIcomfytool::openHomeTab() {

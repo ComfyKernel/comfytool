@@ -20,6 +20,7 @@ public:
     unsigned changedItems = 0;
     unsigned currLump = 0;
 
+    bool    saveset = false;
     QString currentFile = "";
 
     QListWidget* buildWidget = nullptr;
@@ -49,7 +50,7 @@ public slots:
     void applyLumpSettings(int lump=0);
     void resetRootSettings();
     void resetLumpSettings();
-    void openSaveDialog();
+    void openSaveDialog(bool skipdialog);
 
     void addVisItem(QString name="New Item", Lump lump=Lump());
     void setUnsaved();

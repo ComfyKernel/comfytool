@@ -27,8 +27,9 @@ public slots:
     void openHomeTab();
     void openCAFBuilder(QString name="", QXmlStreamReader* qsr=nullptr);
 
-    void openSaveDialog();
-    void openFileDialog();
+    void openSaveDialog  ();
+    void openSaveAsDialog();
+    void openFileDialog  ();
 
 private:
     Ui::UIcomfytool *ui;

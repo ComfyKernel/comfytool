@@ -5,11 +5,12 @@
 
 class Lump {
 public:
-    unsigned revision;
-    QString name;
-    QString type;
-    QString path;
-    QString datapath;
+    unsigned revision = 0;
+    QString name = "Unknown LUMPITEM";
+    QString type = "Unknown";
+    QString path = "/unknown/";
+    QString datapath = "";
+    bool    link = false;
 };
 
 #endif // LUMP_H

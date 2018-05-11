@@ -4,6 +4,7 @@
 #include "uicafbuilderrootinfo.h"
 #include "uicafbuildertablumpinfo.h"
 
+#include <QXmlStreamWriter>
 #include <QGridLayout>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -91,6 +92,9 @@ void UIcafbuildertab::parseCXF(QString name, QXmlStreamReader *qxsr) {
                         l.revision = a.value().toUInt();
                         continue;
                     }
+                    if(a.name() == "link") {
+                        l.revision = a.value().toUInt();
+                    }
                 }
                 addVisItem(QString("[LUMP] ") + l.path + l.name, l);
             }
@@ -103,6 +107,51 @@ void UIcafbuildertab::parseCXF(QString name, QXmlStreamReader *qxsr) {
     }
 
     buildWidget->itemAt(0, 0)->setText(QString("[ROOT] ") + rootInfo.path);
+}
+
+void UIcafbuildertab::saveFile(QString name) {
+    if(name.isEmpty()) return;
+
+    QFile qf(name);
+    if(!qf.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qInfo()<<"Failed to open file '"<<name<<"' for saving ("<<qf.errorString()<<")";
+        return;
+    }
+
+    currentFile = name;
+    saveset     = true;
+
+    _ct->mainTabBar->setTabText(_ct->mainTabBar->indexOf(this), QString("Builder : ") + QString(currentFile).remove(0, currentFile.lastIndexOf('/') + 1));
+
+    QXmlStreamWriter qsw(&qf);
+    qsw.setAutoFormatting(true);
+    qsw.setAutoFormattingIndent(true);
+
+    qsw.writeStartDocument();
+    qsw.writeStartElement("root");
+    qsw.writeAttribute("type", "cafbuilder");
+
+    qsw.writeStartElement("info");
+    qsw.writeAttribute("path"    , rootInfo.path);
+    qsw.writeAttribute("major"   , QString::number(rootInfo.cvMajor ));
+    qsw.writeAttribute("minor"   , QString::number(rootInfo.cvMinor ));
+    qsw.writeAttribute("revision", QString::number(rootInfo.revision));
+    qsw.writeEndElement();
+
+    for(const Lump& l : lumps) {
+        qsw.writeStartElement("lumpitem");
+
+        qsw.writeAttribute("name", l.name);
+        qsw.writeAttribute("path", l.path);
+        qsw.writeAttribute("type",l.type);
+        qsw.writeAttribute("data", l.datapath);
+        qsw.writeAttribute("revision", QString::number(l.revision));
+
+        qsw.writeEndElement();
+    }
+
+    qsw.writeEndElement();
+    qf.close();
 }
 
 unsigned currentLump(UIcafbuildertab* cbt) {
@@ -213,8 +262,14 @@ void UIcafbuildertab::setUnsaved() {
     _ct->mainTabBar->setTabText(_ct->mainTabBar->indexOf(this), QString("Builder : ") + QString(currentFile).remove(0, currentFile.lastIndexOf('/') + 1) + "*");
 }
 
-void UIcafbuildertab::openSaveDialog() {
-    QString fname = QFileDialog::getSaveFileName(this, tr("Save CXF File"), "", tr("Comfy XML File (*.cxf)"));
+void UIcafbuildertab::openSaveDialog(bool skipdialog) {
+    if(!saveset || !skipdialog) {
+        QString fname = QFileDialog::getSaveFileName(this, tr("Save CXF File"), "", tr("Comfy XML File (*.cxf)"));
+        if(fname.isEmpty()) return;
+        saveFile(fname);
+    } else {
+        saveFile(currentFile);
+    }
 }
 
 UIcafbuildertab::~UIcafbuildertab() {

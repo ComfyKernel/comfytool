@@ -47,4 +47,5 @@ FORMS += \
     uicafbuildertablumpinfo.ui
 
 DISTFILES += \
-    caftesting/test.cxf
+    caftesting/test.cxf \
+    caftesting/savetest.cxf

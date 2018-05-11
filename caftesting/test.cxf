@@ -4,5 +4,5 @@
   <lumpitem name="metadata"  path="/"        type="text/metadata" data="caf.metadata"          revision="10" />
   <lumpitem name="testimage" path="/images/" type="images/png"    data="test.png"              revision="1"  />
   <lumpitem name="source"    path="/"        type="text/text"     data="somefile.txt"          revision="0"  />
-  <lumpitem name="testlink"  path="/images/" type="link"          data="testimage" link="true" revision="2"  />
+  <lumpitem name="testlink"  path="/images/" type="1"             data="testimage" link="true" revision="2"  />
 </root>
