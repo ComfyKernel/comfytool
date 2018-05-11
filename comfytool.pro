@@ -24,27 +24,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += \
-    main.cpp \
-    uicomfytool.cpp \
-    uihometab.cpp \
-    uicafbuildertab.cpp \
-    uicafbuilderrootinfo.cpp \
-    uicafbuildertablumpinfo.cpp
+    main.cpp
 
 HEADERS += \
-    uicomfytool.h \
-    uihometab.h \
-    uicafbuildertab.h \
-    uicafbuilderrootinfo.h \
-    lump.h \
-    uicafbuildertablumpinfo.h
+    lump.h
 
-FORMS += \
-    uicomfytool.ui \
-    uihometab.ui \
-    uicafbuildertab.ui \
-    uicafbuilderrootinfo.ui \
-    uicafbuildertablumpinfo.ui
+FORMS +=
 
 DISTFILES += \
     caftesting/test.cxf \
