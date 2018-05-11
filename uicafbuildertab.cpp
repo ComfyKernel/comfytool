@@ -93,7 +93,7 @@ void UIcafbuildertab::parseCXF(QString name, QXmlStreamReader *qxsr) {
                         continue;
                     }
                     if(a.name() == "link") {
-                        l.revision = a.value().toUInt();
+                        l.link = a.value().toUInt();
                     }
                 }
                 addVisItem(QString("[LUMP] ") + l.path + l.name, l);
@@ -146,6 +146,10 @@ void UIcafbuildertab::saveFile(QString name) {
         qsw.writeAttribute("type",l.type);
         qsw.writeAttribute("data", l.datapath);
         qsw.writeAttribute("revision", QString::number(l.revision));
+
+        if(l.link) {
+            qsw.writeAttribute("link", "1");
+        }
 
         qsw.writeEndElement();
     }

@@ -100,7 +100,7 @@ void UIcomfytool::openCAFBuilder(QString name, QXmlStreamReader* qsr) {
 }
 
 void UIcomfytool::openFileDialog() {
-    QString fname = QFileDialog::getOpenFileName(this, tr("Open File"), QDir::homePath(), tr("All Files (*.*)"));
+    QString fname = QFileDialog::getOpenFileName(this, tr("Open File"), "", tr("All Files (*.*)"));
     if(fname.isEmpty()) {
         qInfo()<<"File Dialog Skipped";
         return;
