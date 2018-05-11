@@ -9,6 +9,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QCheckBox>
 #include <QLineEdit>
 #include <QSpinBox>
 #include <QDebug>
@@ -209,15 +210,15 @@ void UIcafbuildertab::updateInfoPanel(int current) {
     cbli->findChild<QLineEdit*>("le_type")->setText(lumps[currentLump(this)].type);
     cbli->findChild<QLineEdit*>("le_data")->setText(lumps[currentLump(this)].datapath);
     cbli->findChild<QSpinBox*>("sb_revision")->setValue(lumps[currentLump(this)].revision);
+    cbli->findChild<QCheckBox*>("cb_lumplink")->setChecked(lumps[currentLump(this)].link);
 
     connect(cbli->findChild<QLineEdit*>("le_name"), SIGNAL(textChanged(QString)), this, SLOT(setUnsaved()));
     connect(cbli->findChild<QLineEdit*>("le_path"), SIGNAL(textChanged(QString)), this, SLOT(setUnsaved()));
     connect(cbli->findChild<QLineEdit*>("le_type"), SIGNAL(textChanged(QString)), this, SLOT(setUnsaved()));
     connect(cbli->findChild<QLineEdit*>("le_data"), SIGNAL(textChanged(QString)), this, SLOT(setUnsaved()));
-
     connect(cbli->findChild<QSpinBox*>("sb_revision"), SIGNAL(valueChanged(int)), this, SLOT(setUnsaved()));
-
     connect(cbli->findChild<QPushButton*>("pbtn_reset"), SIGNAL(clicked(bool)), this, SLOT(resetLumpSettings()));
+    connect(cbli->findChild<QCheckBox*>("cb_lumpflag"), SIGNAL(toggled(bool)), this, SLOT(setUnsaved()));
 
     cbli->show();
     panelWidget = cbli;
@@ -237,7 +238,8 @@ void UIcafbuildertab::applyLumpSettings(int lump) {
     lumps[lump].path = cbli->findChild<QLineEdit*>("le_path")->text();
     lumps[lump].type = cbli->findChild<QLineEdit*>("le_type")->text();
     lumps[lump].datapath = cbli->findChild<QLineEdit*>("le_data")->text();
-    lumps[lump].revision = cbli->findChild<QSpinBox*>("sb_revision")->value();
+    lumps[lump].revision = cbli->findChild<QSpinBox*> ("sb_revision")->value();
+    lumps[lump].link     = cbli->findChild<QCheckBox*>("cb_lumplink")->isChecked();
 }
 
 void UIcafbuildertab::resetRootSettings() {
@@ -255,6 +257,7 @@ void UIcafbuildertab::resetLumpSettings() {
     cbli->findChild<QLineEdit*>("le_type")->setText(lumps[currentLump(this)].type);
     cbli->findChild<QLineEdit*>("le_data")->setText(lumps[currentLump(this)].datapath);
     cbli->findChild<QSpinBox*>("sb_revision")->setValue(lumps[currentLump(this)].revision);
+    cbli->findChild<QCheckBox*>("cb_lumplink")->setChecked(lumps[currentLump(this)].link);
 }
 
 void UIcafbuildertab::addVisItem(QString name, Lump l) {
