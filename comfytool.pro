@@ -24,12 +24,19 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += \
-    main.cpp
+    main.cpp \
+    ctabscreen.cpp \
+    tab_home.cpp \
+    toolmain.cpp
 
 HEADERS += \
-    lump.h
+    ctabscreen.h \
+    tab_home.h \
+    toolmain.h
 
-FORMS +=
+FORMS += \
+    tab_home.ui \
+    toolmain.ui
 
 DISTFILES += \
     caftesting/test.cxf \
