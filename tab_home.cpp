@@ -30,7 +30,7 @@ const QList<QMenu*> tab_home::menus(QWidget *parent) const {
 
     QMenu* m_home = new QMenu(parent);
     m_home->setTitle("Home");
-    QAction* a_about;
+    QAction* a_about = new QAction(m_home);
     a_about->setText("About");
     m_home->addAction(a_about);
 

@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 #include <QTabWidget>
+#include <QList>
+#include <QPair>
 
 #include "ctabscreen.h"
 
@@ -16,15 +18,22 @@ protected:
     QTabWidget* tabbar;
     CTabScreen*    _default_tab;
 
+    typedef QPair<CTabScreen*, QString> _refpair;
+    QList<_refpair> _refpairs;
+
 public:
-    explicit ToolMain(QWidget *parent = 0);
+    explicit ToolMain(QWidget *parent = nullptr);
     ~ToolMain();
 
+    void addFileTypeRef(CTabScreen* ref = nullptr, const QString& name = "");
+    void removeFileTypeRef(const QString& name = "");
+
 public slots:
-    void setDefaultTab  (CTabScreen* tab);
-    void openTab        (CTabScreen* tab);
+    void setDefaultTab  (CTabScreen* tab = nullptr);
+    CTabScreen* openTab (CTabScreen* tab = nullptr);
     void openDefaultTab ();
     void openFileDialog ();
+    void onTabChanged   (int tab = 0);
 
 private:
     Ui::ToolMain *ui;

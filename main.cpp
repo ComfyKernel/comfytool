@@ -1,7 +1,10 @@
 #include <QApplication>
 
 #include "ctabscreen.h"
+
 #include "tab_home.h"
+#include "tab_cafbuilder.h"
+
 #include "toolmain.h"
 
 int main(int argc, char *argv[]) {
@@ -13,6 +16,8 @@ int main(int argc, char *argv[]) {
     tab_home* htab = new tab_home(tm);
     tm->setDefaultTab(htab);
     tm->openDefaultTab();
+
+    tm->addFileTypeRef(new tab_cafbuilder(tm), "cafbuilder");
 
     return qapp.exec();
 }

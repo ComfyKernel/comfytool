@@ -40,6 +40,7 @@ public slots:
     virtual bool saveFile(const QString& file="") const = 0;
     virtual bool loadFile(const QString& file="") = 0;
 
+    virtual void setActive  (QWidget* caller = nullptr) { };
     void setSavable (bool mode);
     void setLoadable(bool mode);
     void setModeChangeAllowed(bool mode);
