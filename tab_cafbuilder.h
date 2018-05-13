@@ -2,19 +2,57 @@
 #define TAB_CAFBUILDER_H
 
 #include <QTreeWidgetItem>
+#include <QVariant>
 #include <QWidget>
 #include <QList>
 
 #include "ctabscreen.h"
 
-struct Lump {
+struct Lump : public QObject {
+    Q_OBJECT
 public:
-    QString name = "Unnamed Lump";
-    QString path = "/";
-    QString type = "unknown";
-    QString data = "";
+    Lump(QObject* parent = nullptr);
+    Lump(const Lump&, QObject* parent = nullptr);
 
-    unsigned revision = 0;
+protected:
+    QString _name = "Unnamed Lump";
+    QString _path = "/";
+    QString _type = "unknown";
+    QString _data = "";
+
+    unsigned _revision = 0;
+
+signals:
+    void modified();
+
+public slots:
+    void setName(const QString& name);
+    void setPath(const QString& path);
+    void setType(const QString& type);
+    void setData(const QString& data);
+    void setRevision(unsigned revision);
+
+    void setName(const QVariant& name);
+    void setPath(const QVariant& path);
+    void setType(const QVariant& type);
+    void setData(const QVariant& data);
+    void setRevision(const QVariant& revision);
+
+    QString name() const;
+    QString path() const;
+    QString type() const;
+    QString data() const;
+
+    unsigned revision() const;
+};
+
+class CT_WI_Helper : public QObject {
+    Q_OBJECT
+public:
+    CT_WI_Helper(QObject* parent = nullptr);
+
+signals:
+    void hasChanged(const QVariant&);
 };
 
 namespace Ui {
@@ -29,7 +67,7 @@ protected:
         unsigned revision = 0;
     } rootinfo;
 
-    QList<Lump> lumps;
+    QList<Lump*> lumps;
 
 public:
     explicit tab_cafbuilder(QWidget *parent = 0);
@@ -45,6 +83,9 @@ public slots:
     void handleValueChanged(QTreeWidgetItem* item, int column);
     void addLump           (const Lump& lump);
     void addRoot           ();
+
+    void setRootPath    (const QVariant&);
+    void setRootRevision(const QVariant&);
 
 private:
     Ui::tab_cafbuilder *ui;
