@@ -44,6 +44,7 @@ public:
 public slots:
     void handleValueChanged(QTreeWidgetItem* item, int column);
     void addLump           (const Lump& lump);
+    void addRoot           ();
 
 private:
     Ui::tab_cafbuilder *ui;

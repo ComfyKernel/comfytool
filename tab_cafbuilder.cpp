@@ -5,11 +5,61 @@
 #include <QXmlStreamReader>
 #include <QHeaderView>
 #include <QTreeWidget>
+#include <QLineEdit>
 #include <QDebug>
+
+class CTreeWidgetItem : public QTreeWidgetItem {
+public:
+    CTreeWidgetItem(QTreeWidget* parent = nullptr)
+        : QTreeWidgetItem(parent) { }
+    CTreeWidgetItem(QTreeWidgetItem* parent = nullptr)
+        : QTreeWidgetItem(parent) { }
+
+    enum ValueType {
+        Number,
+        Text
+    };
+
+    ValueType vtype = Text;
+};
+
+class CItemDelegate : public QStyledItemDelegate {
+public:
+    QTreeWidget* tree;
+
+    CItemDelegate(QObject* parent = nullptr, QTreeWidget* qtw = nullptr)
+        : QStyledItemDelegate(parent), tree(qtw) { }
+
+    virtual QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const {
+        QLineEdit* qle = new QLineEdit(parent);
+
+        CTreeWidgetItem* pti = (CTreeWidgetItem*)tree->itemAt(0, 0)->child(index.parent().row());
+        CTreeWidgetItem* ti  = (CTreeWidgetItem*)pti->child(index.row());
+
+        qInfo()<<"Parent at '"<<index.parent().row()<<"'";
+        qInfo()<<"Is CTreeWidget at '"<<index.column()<<" "<<index.row()<<"'";
+        qInfo()<<ti->text(0)<<" "<<ti->text(1);
+
+        switch(ti->vtype) {
+        case CTreeWidgetItem::Number: {
+            QIntValidator* qiv = new QIntValidator(0, 999999, qle);
+            qle->setValidator(qiv);
+            break;
+        }
+        case CTreeWidgetItem::Text:
+            break;
+        default:
+            qInfo()<<"CType Unknown";
+            break;
+        }
+
+        return qle;
+    }
+};
 
 class NoEditDelegate : public QStyledItemDelegate {
 public:
-    NoEditDelegate(QObject* parent = 0)
+    NoEditDelegate(QObject* parent = nullptr)
         : QStyledItemDelegate(parent) { }
 
     virtual QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const {
@@ -23,7 +73,10 @@ tab_cafbuilder::tab_cafbuilder(QWidget *parent) :
     ui->setupUi(this);
 
     QTreeWidget* qtw = findChild<QTreeWidget*>("tw_lumps");
+
     qtw->setItemDelegateForColumn(0, new NoEditDelegate(qtw));
+    qtw->setItemDelegateForColumn(1, new CItemDelegate (qtw, qtw));
+
     qtw->header()->setSectionResizeMode(0, QHeaderView::Stretch);
 
     connect(qtw , &QTreeWidget::itemChanged,
@@ -35,36 +88,60 @@ tab_cafbuilder::~tab_cafbuilder() {
 }
 
 void tab_cafbuilder::addLump(const Lump &lump) {
-    QTreeWidget* qtw = findChild<QTreeWidget*>("tw_lumps");
+    QTreeWidgetItem* qtwi = findChild<QTreeWidget*>("tw_lumps")->itemAt(0, 0);
 
-    QTreeWidgetItem* twi_head = new QTreeWidgetItem(qtw);
+    CTreeWidgetItem* twi_head = new CTreeWidgetItem(qtwi);
     twi_head->setText(0, lump.name);
 
-#define addWidget(name, str, value) \
-    QTreeWidgetItem* i_##name = new QTreeWidgetItem(twi_head); \
+#define addWidget(name, str, value, valtype) \
+    CTreeWidgetItem* i_##name = new CTreeWidgetItem(twi_head); \
+    i_##name->vtype = valtype; \
     i_##name->setText(0, str); \
     i_##name->setText(1, value); \
     i_##name->setFlags(Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable); \
     twi_head->addChild(i_##name);
 
-    addWidget(name, "Name", lump.name);
-    addWidget(path, "Path", lump.path);
-    addWidget(type, "Type", lump.type);
-    addWidget(data, "Data", lump.data);
+    addWidget(name, "Name", lump.name, CTreeWidgetItem::Text);
+    addWidget(path, "Path", lump.path, CTreeWidgetItem::Text);
+    addWidget(type, "Type", lump.type, CTreeWidgetItem::Text);
+    addWidget(data, "Data", lump.data, CTreeWidgetItem::Text);
 
-    addWidget(revision, "Revision", QString::number(lump.revision));
+    addWidget(revision, "Revision", QString::number(lump.revision), CTreeWidgetItem::Number);
 
 #undef addWidget
 
-    qtw->addTopLevelItem(twi_head);
+    qtwi->addChild(twi_head);
+}
+
+void tab_cafbuilder::addRoot() {
+    QTreeWidgetItem* qtwi = findChild<QTreeWidget*>("tw_lumps")->itemAt(0, 0);
+
+    CTreeWidgetItem* twi_head = new CTreeWidgetItem(qtwi);
+    twi_head->setText(0, "Info");
+
+#define addWidget(name, str, value, valtype) \
+    CTreeWidgetItem* i_##name = new CTreeWidgetItem(twi_head); \
+    i_##name->vtype = valtype; \
+    i_##name->setText(0, str); \
+    i_##name->setText(1, value); \
+    i_##name->setFlags(Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable); \
+    twi_head->addChild(i_##name);
+
+    addWidget(name, "Asset Path", rootinfo.path, CTreeWidgetItem::Text);
+
+    addWidget(revision, "Revision", QString::number(rootinfo.revision), CTreeWidgetItem::Number);
+
+#undef addWidget
+
+    qtwi->insertChild(0, twi_head);
 }
 
 void tab_cafbuilder::handleValueChanged(QTreeWidgetItem *item, int column) {
-    qInfo()<<"Item"<<item->text(0)<<"changed (value)"<<item->text(1)
+    /*qInfo()<<"Item"<<item->text(0)<<"changed (value)"<<item->text(1)
           <<"On column ("<<column<<")";
     if(item->parent() != nullptr) {
         qInfo()<<"Parent "<<item->parent()->text(0);
-    }
+    }*/
 }
 
 const QList<QMenu*> tab_cafbuilder::menus(QWidget *parent) const {
@@ -111,9 +188,11 @@ bool tab_cafbuilder::loadFile(const QString &file) {
             QXmlStreamAttributes attrs = xsr.attributes();
             Lump l;
             bool isLumpItem = false;
+            bool isRootItem = false;
 
             for(const QXmlStreamAttribute& a : attrs) {
                 if(xsr.name() == "info") {
+                    isRootItem = true;
                     if(a.name() == "major") {
                         continue;
                     }
@@ -155,6 +234,12 @@ bool tab_cafbuilder::loadFile(const QString &file) {
 
             if(isLumpItem) {
                 addLump(l);
+                break;
+            }
+
+            if(isRootItem) {
+                addRoot();
+                break;
             }
 
             break;

@@ -32,7 +32,7 @@
       <bool>true</bool>
      </property>
      <attribute name="headerVisible">
-      <bool>true</bool>
+      <bool>false</bool>
      </attribute>
      <column>
       <property name="text">
@@ -54,28 +54,6 @@
       <property name="flags">
        <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled</set>
       </property>
-      <item>
-       <property name="text">
-        <string>Asset Path</string>
-       </property>
-       <property name="text">
-        <string>/unknown/</string>
-       </property>
-       <property name="flags">
-        <set>ItemIsSelectable|ItemIsEditable|ItemIsUserCheckable|ItemIsEnabled</set>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Revision</string>
-       </property>
-       <property name="text">
-        <string>0</string>
-       </property>
-       <property name="flags">
-        <set>ItemIsSelectable|ItemIsEditable|ItemIsUserCheckable|ItemIsEnabled</set>
-       </property>
-      </item>
      </item>
     </widget>
    </item>
