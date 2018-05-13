@@ -116,8 +116,6 @@ public:
 
         CTreeWidgetItem* ti  = (CTreeWidgetItem*)tree->currentItem();
 
-        qInfo()<<"Parent at '"<<index.parent().row()<<"'";
-        qInfo()<<"Is CTreeWidget at '"<<index.column()<<" "<<index.row()<<"'";
         qInfo()<<ti->text(0)<<" "<<ti->text(1);
 
         switch(ti->vtype) {
@@ -262,8 +260,45 @@ CTabScreen* tab_cafbuilder::makeNew(QWidget *parent) const {
 }
 
 bool tab_cafbuilder::saveFile(const QString &file) const {
-    qInfo()<<"Saving unimplemented";
-    return false;
+    QFile qf(file);
+
+    if(!qf.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qInfo()<<"Failed opening file '"<<file<<"'";
+        return false;
+    }
+
+    QXmlStreamWriter xsw(&qf);
+    xsw.setAutoFormatting      (true);
+    xsw.setAutoFormattingIndent(true);
+
+    xsw.writeStartDocument();
+
+    xsw.writeStartElement("root");
+    xsw.writeAttribute   ("type", "cafbuilder");
+
+    xsw.writeStartElement("info");
+    xsw.writeAttribute   ("major", "1");
+    xsw.writeAttribute   ("minor", "1");
+    xsw.writeAttribute   ("revision", QString::number(rootinfo.revision));
+    xsw.writeAttribute   ("path"    , rootinfo.path);
+    xsw.writeEndElement();
+
+    for(const Lump* l : lumps) {
+        xsw.writeStartElement("lumpitem");
+        xsw.writeAttribute   ("name", l->name());
+        xsw.writeAttribute   ("path", l->path());
+        xsw.writeAttribute   ("type", l->type());
+        xsw.writeAttribute   ("data", l->data());
+        xsw.writeAttribute   ("revision", QString::number(l->revision()));
+        xsw.writeEndElement();
+    }
+
+    xsw.writeEndElement();
+
+    xsw.writeEndDocument();
+
+    qf.close();
+    return true;
 }
 
 bool tab_cafbuilder::loadFile(const QString &file) {

@@ -23,6 +23,7 @@ public:
 
     virtual QString     getName() = 0;
     virtual CTabScreen* makeNew(QWidget *parent = nullptr) const = 0;
+    QString saveName = "";
 
 signals:
     void fileLoaded (const QString& file="");

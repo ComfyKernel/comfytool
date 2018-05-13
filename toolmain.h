@@ -16,7 +16,7 @@ class ToolMain : public QMainWindow {
     Q_OBJECT
 protected:
     QTabWidget* tabbar;
-    CTabScreen*    _default_tab;
+    CTabScreen* _default_tab;
 
     typedef QPair<CTabScreen*, QString> _refpair;
     QList<_refpair> _refpairs;
@@ -29,11 +29,15 @@ public:
     void removeFileTypeRef(const QString& name = "");
 
 public slots:
-    void setDefaultTab  (CTabScreen* tab = nullptr);
-    CTabScreen* openTab (CTabScreen* tab = nullptr);
-    void openDefaultTab ();
-    void openFileDialog ();
-    void onTabChanged   (int tab = 0);
+    void setDefaultTab    (CTabScreen* tab = nullptr);
+    CTabScreen* openTab   (CTabScreen* tab = nullptr);
+    void openDefaultTab   ();
+    void openFileDialog   ();
+    void openSaveDialog   ();
+    void saveFile         ();
+    void onTabChanged     (int tab = 0);
+    void closeTab         (int tab = 0);
+    CTabScreen* currentTab();
 
 private:
     Ui::ToolMain *ui;

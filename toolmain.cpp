@@ -13,11 +13,18 @@ ToolMain::ToolMain(QWidget *parent) :
     ui->setupUi(this);
 
     tabbar = findChild<QTabWidget*>("mainbar");
+
     connect(findChild<QAction*>("actionOpen"), &QAction::triggered,
             this, &ToolMain::openFileDialog);
+    connect(findChild<QAction*>("actionSave"), &QAction::triggered,
+            this, &ToolMain::saveFile);
+    connect(findChild<QAction*>("actionSave_As"), &QAction::triggered,
+            this, &ToolMain::openSaveDialog);
 
     connect(tabbar, &QTabWidget::currentChanged,
             this  , &ToolMain::onTabChanged);
+    connect(tabbar, &QTabWidget::tabCloseRequested,
+            this, &ToolMain::closeTab);
 }
 
 ToolMain::~ToolMain() {
@@ -51,6 +58,22 @@ void ToolMain::openDefaultTab() {
 
 void ToolMain::setDefaultTab(CTabScreen *tab) {
     _default_tab = tab;
+}
+
+void ToolMain::saveFile() {
+    if(currentTab()->saveName.isEmpty()) {
+        openSaveDialog();
+        return;
+    }
+
+    currentTab()->saveFile(currentTab()->saveName);
+}
+
+void ToolMain::openSaveDialog() {
+    QString fname = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("Comfy Tool Files (*.cxf)"));
+    if(fname.isEmpty()) return;
+    currentTab()->saveName = fname;
+    saveFile();
 }
 
 void ToolMain::openFileDialog() {
@@ -101,6 +124,9 @@ void ToolMain::openFileDialog() {
 void ToolMain::onTabChanged(int tab) {
     QMenuBar* mb = findChild<QMenuBar*>("menubar");
     CTabScreen* cts = (CTabScreen*)tabbar->widget(tab);
+    if(!cts) {
+        return;
+    }
 
     QList<QObject*> mb_ch = mb->children();
     for(int i = 0; i < mb_ch.length(); ++i) {
@@ -120,4 +146,14 @@ void ToolMain::onTabChanged(int tab) {
     for(QMenu* m : menus) {
         mb->addMenu(m);
     }
+}
+
+void ToolMain::closeTab(int tab) {
+    CTabScreen* cts = (CTabScreen*)tabbar->widget(tab);
+    cts->close();
+    tabbar->removeTab(tab);
+}
+
+CTabScreen* ToolMain::currentTab() {
+    return (CTabScreen*)tabbar->currentWidget();
 }
