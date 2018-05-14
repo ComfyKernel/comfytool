@@ -56,6 +56,7 @@ void ToolMain::removeFileTypeRef(const QString &name) {
 
 CTabScreen* ToolMain::openTab(CTabScreen *tab) {
     CTabScreen* n_tab = tab->makeNew(this);
+    n_tab->tool = this;
     tabbar->addTab(n_tab, n_tab->getName());
     return n_tab;
 }
@@ -115,9 +116,6 @@ void ToolMain::openFile(QString fname) {
 
     QXmlStreamReader qx(&qf);
 
-    QList<_refpair> pairs;
-    pairs.append(_refpairs[0]);
-
     while(!qx.atEnd() && !qx.hasError()) {
         QXmlStreamReader::TokenType token = qx.readNext();
         switch(token) {
@@ -130,7 +128,7 @@ void ToolMain::openFile(QString fname) {
                     if(a.name() == "type") {
                         QString tp = a.value().toString();
 
-                        for(const auto& i : pairs) {
+                        for(const auto& i : _refpairs) {
                             if(i.second == tp) {
                                 CTabScreen* tab = openTab(i.first);
                                 tab->loadFile(fname);

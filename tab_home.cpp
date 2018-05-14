@@ -16,24 +16,18 @@ tab_home::tab_home(QWidget *parent) :
     ui->setupUi(this);
 
     findChild<QVBoxLayout*>("vl_main")->addStretch();
+    QListWidget* qlw = findChild<QListWidget*>("lw_recent");
 
     if(QString(parent->metaObject()->className()) == "ToolMain") {
         ToolMain* tm = (ToolMain*)parent;
         connect(findChild<QPushButton*>("pbtn_openfile"), &QPushButton::clicked,
                 tm->findChild<QAction*>("actionOpen"), &QAction::trigger);
+        connect(qlw, &QListWidget::itemDoubleClicked, this, &tab_home::openRecentFile);
     }
 
     setSavable (false);
     setLoadable(false);
     setModeChangeAllowed(false);
-
-    QListWidget* qlw = findChild<QListWidget*>("lw_recent");
-
-    connect(qlw, &QListWidget::itemDoubleClicked,
-            [&](QListWidgetItem* item) {
-                ToolMain* tm = (ToolMain*)parent;
-                tm->openFile(item->text());
-            });
 
     QSettings settings;
     QList<QString> recents = settings.value("io/recentfiles").value<QList<QString>>();
@@ -73,6 +67,13 @@ bool tab_home::saveFile(const QString &file) const {
 bool tab_home::loadFile(const QString &file) {
     qInfo()<<"Home Tab does not support file loading";
     return false;
+}
+
+void tab_home::openRecentFile(QListWidgetItem *item) {
+    qInfo()<<"Opening recent file";
+    if(tool) {
+        tool->openFile(item->text());
+    }
 }
 
 tab_home::~tab_home() {

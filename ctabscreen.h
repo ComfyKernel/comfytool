@@ -1,5 +1,7 @@
 #pragma once
 
+class ToolMain;
+
 #include <QWidget>
 #include <QMenu>
 #include <QList>
@@ -13,6 +15,7 @@ protected:
     bool    _allow_mode_changing = true;
 
 public:
+    ToolMain* tool = nullptr;
     explicit CTabScreen(QWidget *parent = nullptr);
 
     virtual const QList<QMenu*> menus(QWidget *parent = nullptr) const = 0;
