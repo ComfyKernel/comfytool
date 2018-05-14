@@ -166,6 +166,8 @@ tab_cafbuilder::tab_cafbuilder(QWidget *parent) :
             this, &tab_cafbuilder::handleValueChanged);
 
     findChild<QHBoxLayout*>("hl_bar")->addStretch();
+    
+    connect(findChild<QToolButton*>("tbtn_add"), )
 }
 
 tab_cafbuilder::~tab_cafbuilder() {

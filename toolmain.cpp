@@ -58,6 +58,7 @@ CTabScreen* ToolMain::openTab(CTabScreen *tab) {
     CTabScreen* n_tab = tab->makeNew(this);
     n_tab->tool = this;
     tabbar->addTab(n_tab, n_tab->getName());
+    tabbar->setCurrentIndex(tabbar->count() - 1);
     return n_tab;
 }
 
