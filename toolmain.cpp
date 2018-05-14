@@ -1,8 +1,10 @@
 #include "toolmain.h"
 #include "ui_toolmain.h"
 
+#include <QCoreApplication>
 #include <QXmlStreamReader>
 #include <QFileDialog>
+#include <QSettings>
 #include <QMenuBar>
 #include <QDebug>
 #include <QFile>
@@ -25,6 +27,12 @@ ToolMain::ToolMain(QWidget *parent) :
             this  , &ToolMain::onTabChanged);
     connect(tabbar, &QTabWidget::tabCloseRequested,
             this, &ToolMain::closeTab);
+
+    QCoreApplication::setOrganizationName  ("comfykernel");
+    QCoreApplication::setOrganizationDomain("github.com/ComfyKernel/");
+    QCoreApplication::setApplicationName   ("Comfy Tool");
+
+    qRegisterMetaTypeStreamOperators<QList<QString>>("QList<QString>");
 }
 
 ToolMain::~ToolMain() {
@@ -69,17 +77,33 @@ void ToolMain::saveFile() {
     currentTab()->saveFile(currentTab()->saveName);
 }
 
+void addRecentFile(QString file) {
+    QSettings settings;
+    QList<QString> recent = settings.value("io/recentfiles").value<QList<QString>>();
+    for(unsigned i = 0; i < recent.length(); ++i) {
+        if(recent[i] == file) {
+            recent.removeAt(i);
+            recent.append(file);
+            return;
+        }
+    }
+
+    recent.append(file);
+    settings.setValue("io/recentfiles", QVariant::fromValue(recent));
+    settings.sync();
+}
+
 void ToolMain::openSaveDialog() {
     QString fname = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("Comfy Tool Files (*.cxf)"));
     if(fname.isEmpty()) return;
+
+    addRecentFile(fname);
+
     currentTab()->saveName = fname;
     saveFile();
 }
 
-void ToolMain::openFileDialog() {
-    QString fname = QFileDialog::getOpenFileName(this, tr("Open File"), "", tr("Comfy Tool Files (*.cxf)"));
-    if(fname.isEmpty()) return;
-
+void ToolMain::openFile(QString fname) {
     QFile qf(fname);
 
     if(!qf.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -87,7 +111,12 @@ void ToolMain::openFileDialog() {
         return;
     }
 
+    addRecentFile(fname);
+
     QXmlStreamReader qx(&qf);
+
+    QList<_refpair> pairs;
+    pairs.append(_refpairs[0]);
 
     while(!qx.atEnd() && !qx.hasError()) {
         QXmlStreamReader::TokenType token = qx.readNext();
@@ -101,7 +130,7 @@ void ToolMain::openFileDialog() {
                     if(a.name() == "type") {
                         QString tp = a.value().toString();
 
-                        for(const auto& i : _refpairs) {
+                        for(const auto& i : pairs) {
                             if(i.second == tp) {
                                 CTabScreen* tab = openTab(i.first);
                                 tab->loadFile(fname);
@@ -119,6 +148,13 @@ void ToolMain::openFileDialog() {
     }
 
     qf.close();
+}
+
+void ToolMain::openFileDialog() {
+    QString fname = QFileDialog::getOpenFileName(this, tr("Open File"), "", tr("Comfy Tool Files (*.cxf)"));
+    if(fname.isEmpty()) return;
+
+    openFile(fname);
 }
 
 void ToolMain::onTabChanged(int tab) {

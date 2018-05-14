@@ -3,8 +3,11 @@
 
 #include "toolmain.h"
 
+#include <QListWidgetItem>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QListWidget>
+#include <QSettings>
 #include <QDebug>
 
 tab_home::tab_home(QWidget *parent) :
@@ -23,6 +26,22 @@ tab_home::tab_home(QWidget *parent) :
     setSavable (false);
     setLoadable(false);
     setModeChangeAllowed(false);
+
+    QListWidget* qlw = findChild<QListWidget*>("lw_recent");
+
+    connect(qlw, &QListWidget::itemDoubleClicked,
+            [&](QListWidgetItem* item) {
+                ToolMain* tm = (ToolMain*)parent;
+                tm->openFile(item->text());
+            });
+
+    QSettings settings;
+    QList<QString> recents = settings.value("io/recentfiles").value<QList<QString>>();
+    std::reverse(recents.begin(), recents.end());
+    for(const auto& i : recents) {
+        QListWidgetItem* qlwi = new QListWidgetItem(qlw);
+        qlwi->setText(i);
+    }
 }
 
 const QList<QMenu*> tab_home::menus(QWidget *parent) const {

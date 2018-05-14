@@ -97,7 +97,10 @@ public:
     void setData(int column, int role, const QVariant& value) {
         QTreeWidgetItem::setData(column, role, value);
         emit helper.hasChanged(value);
-        qInfo()<<"Data modified";
+        QString t = text(0);
+        if(t == "Name") {
+            parent()->setText(0, value.toString());
+        }
     }
 
     ValueType vtype = Text;
@@ -120,7 +123,7 @@ public:
 
         switch(ti->vtype) {
         case CTreeWidgetItem::Number: {
-            QIntValidator* qiv = new QIntValidator(0, 999999, qle);
+            QIntValidator* qiv = new QIntValidator(0, 65535, qle);
             qle->setValidator(qiv);
             break;
         }
@@ -384,6 +387,8 @@ bool tab_cafbuilder::loadFile(const QString &file) {
         qInfo()<<"Failed parsing CXF file. Error : "<<xsr.errorString();
         return false;
     }
+
+    findChild<QTreeWidget*>("tw_lumps")->itemAt(0, 0)->setText(0, rootinfo.path);
 
     qf.close();
     return true;

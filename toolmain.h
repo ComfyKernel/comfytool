@@ -12,13 +12,13 @@ namespace Ui {
     class ToolMain;
 }
 
+typedef QPair<CTabScreen*, QString> _refpair;
+
 class ToolMain : public QMainWindow {
     Q_OBJECT
 protected:
     QTabWidget* tabbar;
     CTabScreen* _default_tab;
-
-    typedef QPair<CTabScreen*, QString> _refpair;
     QList<_refpair> _refpairs;
 
 public:
@@ -33,6 +33,7 @@ public slots:
     CTabScreen* openTab   (CTabScreen* tab = nullptr);
     void openDefaultTab   ();
     void openFileDialog   ();
+    void openFile         (QString fname = "");
     void openSaveDialog   ();
     void saveFile         ();
     void onTabChanged     (int tab = 0);
