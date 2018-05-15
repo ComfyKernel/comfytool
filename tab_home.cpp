@@ -10,6 +10,20 @@
 #include <QSettings>
 #include <QDebug>
 
+void updateRecentFiles(tab_home* th) {
+    QListWidget* qlw = th->findChild<QListWidget*>("lw_recent");
+    qlw->clear();
+
+    QSettings settings;
+    QList<QString> recents = settings.value("io/recentfiles").value<QList<QString>>();
+    std::reverse(recents.begin(), recents.end());
+
+    for(const auto& i : recents) {
+        QListWidgetItem* qlwi = new QListWidgetItem(qlw);
+        qlwi->setText(i);
+    }
+}
+
 tab_home::tab_home(QWidget *parent) :
     CTabScreen(parent),
     ui(new Ui::tab_home) {
@@ -20,22 +34,21 @@ tab_home::tab_home(QWidget *parent) :
 
     if(QString(parent->metaObject()->className()) == "ToolMain") {
         ToolMain* tm = (ToolMain*)parent;
+        tab_home* tab = this;
+
         connect(findChild<QPushButton*>("pbtn_openfile"), &QPushButton::clicked,
                 tm->findChild<QAction*>("actionOpen"), &QAction::trigger);
-        connect(qlw, &QListWidget::itemDoubleClicked, this, &tab_home::openRecentFile);
+        connect(qlw, &QListWidget::itemDoubleClicked, this, [=](QListWidgetItem* item) {
+                        tool->openFile(item->text());
+                        updateRecentFiles(tab);
+                    });
     }
 
     setSavable (false);
     setLoadable(false);
     setModeChangeAllowed(false);
 
-    QSettings settings;
-    QList<QString> recents = settings.value("io/recentfiles").value<QList<QString>>();
-    std::reverse(recents.begin(), recents.end());
-    for(const auto& i : recents) {
-        QListWidgetItem* qlwi = new QListWidgetItem(qlw);
-        qlwi->setText(i);
-    }
+    updateRecentFiles(this);
 }
 
 const QList<QMenu*> tab_home::menus(QWidget *parent) const {
@@ -69,12 +82,12 @@ bool tab_home::loadFile(const QString &file) {
     return false;
 }
 
-void tab_home::openRecentFile(QListWidgetItem *item) {
+/*void tab_home::openRecentFile(QListWidgetItem *item) {
     qInfo()<<"Opening recent file";
     if(tool) {
         tool->openFile(item->text());
     }
-}
+}*/
 
 tab_home::~tab_home() {
     delete ui;

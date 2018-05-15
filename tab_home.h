@@ -21,9 +21,6 @@ public:
     bool loadFile(const QString &file);
     CTabScreen* makeNew(QWidget *parent) const;
 
-public slots:
-    void openRecentFile(QListWidgetItem* item);
-
 private:
     Ui::tab_home *ui;
 };

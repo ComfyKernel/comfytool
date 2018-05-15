@@ -8,11 +8,21 @@
 
 #include "ctabscreen.h"
 
+struct bLump {
+public:
+    QString name = "Unnamed Lump";
+    QString path = "/";
+    QString type = "unknown";
+    QString data = "";
+
+    unsigned revision = 0;
+};
+
 struct Lump : public QObject {
     Q_OBJECT
 public:
     Lump(QObject* parent = nullptr);
-    Lump(const Lump&, QObject* parent = nullptr);
+    Lump(const bLump&, QObject* parent = nullptr);
 
 protected:
     QString _name = "Unnamed Lump";
@@ -44,6 +54,8 @@ public slots:
     QString data() const;
 
     unsigned revision() const;
+
+    bLump tobLump() const;
 };
 
 class CT_WI_Helper : public QObject {
@@ -58,6 +70,25 @@ signals:
 namespace Ui {
     class tab_cafbuilder;
 }
+
+class CTreeWidgetItem : public QTreeWidgetItem {
+public:
+    CT_WI_Helper helper;
+
+    CTreeWidgetItem(QTreeWidget* parent = nullptr);
+    CTreeWidgetItem(QTreeWidgetItem* parent = nullptr);
+
+    enum ValueType {
+        Number,
+        Text
+    };
+
+    void setData(int column, int role, const QVariant& value);
+
+    ValueType vtype   = Text;
+    Lump*     lump    = nullptr;
+    bool      notLump = false;
+};
 
 class tab_cafbuilder : public CTabScreen {
     Q_OBJECT
@@ -78,10 +109,11 @@ public:
     bool saveFile(const QString &file) const;
     bool loadFile(const QString &file);
     CTabScreen* makeNew(QWidget *parent) const;
+    void removeVisItem(QTreeWidgetItem* item);
 
 public slots:
     void handleValueChanged(QTreeWidgetItem* item, int column);
-    void addLump           (const Lump& lump);
+    void addLump           (const bLump& lump);
     void addRoot           ();
 
     void setRootPath    (const QVariant&);

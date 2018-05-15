@@ -59,22 +59,61 @@
          <string>Add</string>
         </property>
         <property name="text">
-         <string>New</string>
+         <string>Add</string>
         </property>
         <property name="icon">
-         <iconset theme="add"/>
+         <iconset theme="list-add"/>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QToolButton" name="tbtn_remove">
         <property name="text">
-         <string/>
+         <string>Remove</string>
         </property>
         <property name="icon">
-         <iconset theme="remove"/>
+         <iconset theme="list-remove"/>
         </property>
        </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>6</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QToolButton" name="tbtn_clone">
+        <property name="text">
+         <string>Duplicate</string>
+        </property>
+        <property name="icon">
+         <iconset theme="edit-copy"/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
       </item>
      </layout>
     </widget>

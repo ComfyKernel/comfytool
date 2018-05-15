@@ -3,8 +3,11 @@
 
 #include <QStyledItemDelegate>
 #include <QXmlStreamReader>
+#include <QHBoxLayout>
 #include <QHeaderView>
 #include <QTreeWidget>
+#include <QPushButton>
+#include <QToolButton>
 #include <QLineEdit>
 #include <QDebug>
 
@@ -12,9 +15,9 @@
 
 Lump::Lump(QObject* parent)
     : QObject(parent) { }
-Lump::Lump(const Lump& l, QObject* parent)
-    : _name(l.name()), _path(l.path()), _type(l.type()),
-      _data(l.data()), _revision(l.revision()),
+Lump::Lump(const bLump& l, QObject* parent)
+    : _name(l.name), _path(l.path), _type(l.type),
+      _data(l.data), _revision(l.revision),
       QObject(parent) { }
 
 void Lump::setName(const QString &name) {
@@ -75,44 +78,36 @@ unsigned Lump::revision() const {
     return _revision;
 }
 
+bLump Lump::tobLump() const {
+    return {.name = _name, .path = _path, .type = _type, .data = _data, .revision = _revision};
+}
+
 // !LUMP //
 
 CT_WI_Helper::CT_WI_Helper(QObject *parent)
     : QObject(parent) { }
 
-class CTreeWidgetItem : public QTreeWidgetItem {
-public:
-    CT_WI_Helper helper;
+CTreeWidgetItem::CTreeWidgetItem(QTreeWidget* parent)
+    : QTreeWidgetItem(parent) { }
+CTreeWidgetItem::CTreeWidgetItem(QTreeWidgetItem* parent)
+    : QTreeWidgetItem(parent) { }
 
-    CTreeWidgetItem(QTreeWidget* parent = nullptr)
-        : QTreeWidgetItem(parent) { }
-    CTreeWidgetItem(QTreeWidgetItem* parent = nullptr)
-        : QTreeWidgetItem(parent) { }
-
-    enum ValueType {
-        Number,
-        Text
-    };
-
-    void setData(int column, int role, const QVariant& value) {
-        QTreeWidgetItem::setData(column, role, value);
-        emit helper.hasChanged(value);
-        QString t = text(0);
-        if(t == "Name") {
-            parent()->setText(0, value.toString());
-        }
+void CTreeWidgetItem::setData(int column, int role, const QVariant& value) {
+    QTreeWidgetItem::setData(column, role, value);
+    emit helper.hasChanged(value);
+    QString t = text(0);
+    if(t == "Name") {
+        parent()->setText(0, value.toString());
     }
-
-    ValueType vtype = Text;
-    Lump*     lump;
-};
+}
 
 class CItemDelegate : public QStyledItemDelegate {
 public:
     QTreeWidget* tree;
 
     CItemDelegate(QObject* parent = nullptr, QTreeWidget* qtw = nullptr)
-        : QStyledItemDelegate(parent), tree(qtw) { }
+        : QStyledItemDelegate(parent), tree(qtw) {
+    }
 
     virtual QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const {
         QLineEdit* qle = new QLineEdit(parent);
@@ -155,7 +150,9 @@ tab_cafbuilder::tab_cafbuilder(QWidget *parent) :
     ui(new Ui::tab_cafbuilder) {
     ui->setupUi(this);
 
-    QTreeWidget* qtw = findChild<QTreeWidget*>("tw_lumps");
+    findChild<QHBoxLayout*>("hl_bar")->addStretch();
+
+    QTreeWidget* qtw = findChild<QTreeWidget*>("tw_lumps");;
 
     qtw->setItemDelegateForColumn(0, new NoEditDelegate(qtw));
     qtw->setItemDelegateForColumn(1, new CItemDelegate (qtw, qtw));
@@ -165,21 +162,45 @@ tab_cafbuilder::tab_cafbuilder(QWidget *parent) :
     connect(qtw , &QTreeWidget::itemChanged,
             this, &tab_cafbuilder::handleValueChanged);
 
-    findChild<QHBoxLayout*>("hl_bar")->addStretch();
+    connect(findChild<QToolButton*>("tbtn_remove"), &QToolButton::clicked, [=]() {
+        removeVisItem(qtw->currentItem());
+    });
+    connect(findChild<QToolButton*>("tbtn_add"), &QToolButton::clicked, [=]() {
+        addLump({.name="New Lump", .path="/", .type="none", .data="", .revision=0});
+    });
+    connect(findChild<QToolButton*>("tbtn_clone"), &QToolButton::clicked,[=]() {
+        if(CTreeWidgetItem* item = dynamic_cast<CTreeWidgetItem*>(qtw->currentItem())) {
+            addLump(item->lump->tobLump());
+        }
+    });
 }
 
 tab_cafbuilder::~tab_cafbuilder() {
     delete ui;
 }
 
-void tab_cafbuilder::addLump(const Lump &lump) {
+void tab_cafbuilder::removeVisItem(QTreeWidgetItem *item) {
+    if(CTreeWidgetItem* citem = dynamic_cast<CTreeWidgetItem*>(item)) {
+        if(citem->notLump)
+            return;
+
+        lumps.removeAll(citem->lump);
+        delete citem->lump;
+        delete citem;
+    }
+}
+
+void tab_cafbuilder::addLump(const bLump &lump) {
     Lump* l = new Lump(lump);
+    l->setObjectName(l->name());
     lumps.append(l);
 
-    QTreeWidgetItem* qtwi = findChild<QTreeWidget*>("tw_lumps")->itemAt(0, 0);
+    QTreeWidget*     qtw  = findChild<QTreeWidget*>("tw_lumps");
+    QTreeWidgetItem* qtwi = qtw->itemAt(0, 0);
 
     CTreeWidgetItem* twi_head = new CTreeWidgetItem(qtwi);
-    twi_head->setText(0, lump.name());
+    twi_head->setText(0, lump.name);
+    twi_head->lump = l;
 
 #define addWidget(name, str, value, valtype, slot) \
     CTreeWidgetItem* i_##name = new CTreeWidgetItem(twi_head); \
@@ -191,16 +212,45 @@ void tab_cafbuilder::addLump(const Lump &lump) {
     connect(&i_##name->helper, SIGNAL(hasChanged(const QVariant&)), l, slot); \
     twi_head->addChild(i_##name);
 
-    addWidget(name, "Name", lump.name(), CTreeWidgetItem::Text, SLOT(setName(const QVariant&)));
-    addWidget(path, "Path", lump.path(), CTreeWidgetItem::Text, SLOT(setPath(const QVariant&)));
-    addWidget(type, "Type", lump.type(), CTreeWidgetItem::Text, SLOT(setType(const QVariant&)));
-    addWidget(data, "Data", lump.data(), CTreeWidgetItem::Text, SLOT(setData(const QVariant&)));
+    addWidget(name, "Name", lump.name, CTreeWidgetItem::Text, SLOT(setName(const QVariant&)));
+    addWidget(path, "Path", lump.path, CTreeWidgetItem::Text, SLOT(setPath(const QVariant&)));
+    addWidget(type, "Type", lump.type, CTreeWidgetItem::Text, SLOT(setType(const QVariant&)));
+    addWidget(data, "Data", lump.data, CTreeWidgetItem::Text, SLOT(setData(const QVariant&)));
 
-    addWidget(revision, "Revision", QString::number(lump.revision()), CTreeWidgetItem::Number, SLOT(setRevision(const QVariant&)));
+    addWidget(revision, "Revision", QString::number(lump.revision), CTreeWidgetItem::Number, SLOT(setRevision(const QVariant&)));
 
 #undef addWidget
 
     qtwi->addChild(twi_head);
+
+    QHBoxLayout* hbl = new QHBoxLayout();
+    hbl->addStretch();
+    hbl->setDirection(QHBoxLayout::LeftToRight);
+    hbl->setSpacing(0);
+    hbl->setContentsMargins(0, 0, 0, 0);
+
+    QWidget* qw = new QWidget();
+    qw->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+
+    QPushButton* qpb = new QPushButton();
+    qpb->setIcon(QIcon::fromTheme("edit-delete"));
+    qpb->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding));
+
+    hbl->addWidget(qw);
+    hbl->addWidget(qpb);
+
+    connect(qpb, &QPushButton::clicked,
+            [=]() {
+                /*lumps.removeAll(l);
+                delete l;
+                delete twi_head;*/
+                removeVisItem(twi_head);
+            });
+
+    QWidget* qmain = new QWidget();
+    qmain->setLayout(hbl);
+
+    qtw->setItemWidget(twi_head, 1, qmain);
 }
 
 void tab_cafbuilder::addRoot() {
@@ -208,6 +258,7 @@ void tab_cafbuilder::addRoot() {
 
     CTreeWidgetItem* twi_head = new CTreeWidgetItem(qtwi);
     twi_head->setText(0, "Info");
+    twi_head->notLump = true;
 
 #define addWidget(name, str, value, valtype, slot) \
     CTreeWidgetItem* i_##name = new CTreeWidgetItem(twi_head); \
@@ -219,7 +270,6 @@ void tab_cafbuilder::addRoot() {
     twi_head->addChild(i_##name);
 
     addWidget(name, "Asset Path", rootinfo.path, CTreeWidgetItem::Text, SLOT(setRootPath(const QVariant&)));
-
     addWidget(revision, "Revision", QString::number(rootinfo.revision), CTreeWidgetItem::Number, SLOT(setRootRevision(const QVariant&)));
 
 #undef addWidget
@@ -322,7 +372,7 @@ bool tab_cafbuilder::loadFile(const QString &file) {
         switch(token) {
         case QXmlStreamReader::StartElement: {
             QXmlStreamAttributes attrs = xsr.attributes();
-            Lump l;
+            bLump l;
             bool isLumpItem = false;
             bool isRootItem = false;
 
@@ -346,23 +396,23 @@ bool tab_cafbuilder::loadFile(const QString &file) {
                 } else if(xsr.name() == "lumpitem") {
                     isLumpItem = true;
                     if(a.name() == "name") {
-                        l.setName(a.value().toString());
+                        l.name = a.value().toString();
                         continue;
                     }
                     if(a.name() == "path") {
-                        l.setPath(a.value().toString());
+                        l.path = a.value().toString();
                         continue;
                     }
                     if(a.name() == "type") {
-                        l.setType(a.value().toString());
+                        l.type = a.value().toString();
                         continue;
                     }
                     if(a.name() == "data") {
-                        l.setData(a.value().toString());
+                        l.data = a.value().toString();
                         continue;
                     }
                     if(a.name() == "revision") {
-                        l.setRevision(a.value().toUInt());
+                        l.revision = a.value().toUInt();
                         continue;
                     }
                 }

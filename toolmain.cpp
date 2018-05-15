@@ -86,6 +86,8 @@ void addRecentFile(QString file) {
         if(recent[i] == file) {
             recent.removeAt(i);
             recent.append(file);
+            settings.setValue("io/recentfiles", QVariant::fromValue(recent));
+            settings.sync();
             return;
         }
     }
@@ -158,10 +160,6 @@ void ToolMain::openFileDialog() {
 
 void ToolMain::onTabChanged(int tab) {
     QMenuBar* mb = findChild<QMenuBar*>("menubar");
-    CTabScreen* cts = (CTabScreen*)tabbar->widget(tab);
-    if(!cts) {
-        return;
-    }
 
     QList<QObject*> mb_ch = mb->children();
     for(int i = 0; i < mb_ch.length(); ++i) {
@@ -174,6 +172,11 @@ void ToolMain::onTabChanged(int tab) {
             m->close();
             delete m;
         }
+    }
+
+    CTabScreen* cts = (CTabScreen*)tabbar->widget(tab);
+    if(!cts) {
+        return;
     }
 
     QList<QMenu*> menus = cts->menus(mb);

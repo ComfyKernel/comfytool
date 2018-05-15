@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root type="cafbuilder">
+ <info major="1" minor="1" revision="0" path="/test_caf/"/>
+ <lumpitem name="metadata" path="/" type="text/metadata" data="caf.metadata" revision="10"/>
+ <lumpitem name="testlink" path="/images/" type="link" data="testimage" revision="2"/>
+ <lumpitem name="TestLump" path="/tests/" type="eehh, text?" data="/path/to/test/thing/lol" revision="20"/>
+ <lumpitem name="Nu Lump" path="/" type="expectedtype" data="/images/thing" revision="15"/>
+ <lumpitem name="Nu Lump 2" path="/data/" type="expectedtype2" data="/images/thing2" revision="16"/>
+</root>
