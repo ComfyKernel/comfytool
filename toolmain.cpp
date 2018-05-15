@@ -98,7 +98,7 @@ void addRecentFile(QString file) {
 }
 
 void ToolMain::openSaveDialog() {
-    QString fname = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("Comfy Tool Files (*.cxf)"));
+    QString fname = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("Comfy XML Files (*.cxf);;Comfy Asset Files (*.caf);;All Files (*.*)"));
     if(fname.isEmpty()) return;
 
     addRecentFile(fname);
@@ -116,6 +116,24 @@ void ToolMain::openFile(QString fname) {
     }
 
     addRecentFile(fname);
+
+    QString ext = (QString(".") + fname.split('.').last());
+
+    for(const auto& i : _refpairs) {
+        if(i.second == ext) {
+            CTabScreen* tab = openTab(i.first);
+            tab->setCurrentFile(fname);
+            tab->loadFile(fname);
+            qf.close();
+            return;
+        }
+    }
+
+    if(ext != ".cxf") {
+        qInfo()<<"Unable to load file ("<<fname<<"). Could not decide tool";
+        qf.close();
+        return;
+    }
 
     QXmlStreamReader qx(&qf);
 
@@ -153,7 +171,7 @@ void ToolMain::openFile(QString fname) {
 }
 
 void ToolMain::openFileDialog() {
-    QString fname = QFileDialog::getOpenFileName(this, tr("Open File"), "", tr("Comfy Tool Files (*.cxf)"));
+    QString fname = QFileDialog::getOpenFileName(this, tr("Open File"), "", tr("Comfy XML Files (*.cxf);;Comfy Asset Files (*.caf);;All Files (*.*)"));
     if(fname.isEmpty()) return;
 
     openFile(fname);

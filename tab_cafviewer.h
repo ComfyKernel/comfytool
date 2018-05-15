@@ -4,15 +4,15 @@
 #include "ctabscreen.h"
 
 namespace Ui {
-class tab_home;
+class tab_cafviewer;
 }
 
-class tab_home : public CTabScreen {
+class tab_cafviewer : public CTabScreen {
     Q_OBJECT
 
 public:
-    explicit tab_home(QWidget *parent = 0);
-    ~tab_home();
+    explicit tab_cafviewer(QWidget *parent = 0);
+    ~tab_cafviewer();
 
     const QList<QMenu*> menus(QWidget *parent) const;
     QString getName();
@@ -21,5 +21,5 @@ public:
     CTabScreen* makeNew(QWidget *parent) const;
 
 private:
-    Ui::tab_home *ui;
+    Ui::tab_cafviewer *ui;
 };

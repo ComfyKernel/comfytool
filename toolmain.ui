@@ -98,22 +98,22 @@
   </action>
   <action name="actionFullscreen">
    <property name="text">
-    <string>Fullscreen</string>
+    <string>&amp;Fullscreen</string>
    </property>
   </action>
   <action name="actionWindowed">
    <property name="text">
-    <string>Windowed</string>
+    <string>&amp;Windowed</string>
    </property>
   </action>
   <action name="actionMaximized">
    <property name="text">
-    <string>Maximized</string>
+    <string>&amp;Maximized</string>
    </property>
   </action>
   <action name="actionMinimized">
    <property name="text">
-    <string>Minimized</string>
+    <string>M&amp;inimized</string>
    </property>
   </action>
  </widget>

@@ -28,18 +28,21 @@ SOURCES += \
     ctabscreen.cpp \
     tab_home.cpp \
     toolmain.cpp \
-    tab_cafbuilder.cpp
+    tab_cafbuilder.cpp \
+    tab_cafviewer.cpp
 
 HEADERS += \
     ctabscreen.h \
     tab_home.h \
     toolmain.h \
-    tab_cafbuilder.h
+    tab_cafbuilder.h \
+    tab_cafviewer.h
 
 FORMS += \
     tab_home.ui \
     toolmain.ui \
-    tab_cafbuilder.ui
+    tab_cafbuilder.ui \
+    tab_cafviewer.ui
 
 DISTFILES += \
     caftesting/test.cxf \

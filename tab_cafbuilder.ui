@@ -58,11 +58,15 @@
         <property name="whatsThis">
          <string>Add</string>
         </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
         <property name="text">
          <string>Add</string>
         </property>
         <property name="icon">
-         <iconset theme="list-add"/>
+         <iconset theme="list-add">
+          <normaloff>.</normaloff>.</iconset>
         </property>
        </widget>
       </item>
@@ -72,7 +76,8 @@
          <string>Remove</string>
         </property>
         <property name="icon">
-         <iconset theme="list-remove"/>
+         <iconset theme="list-remove">
+          <normaloff>.</normaloff>.</iconset>
         </property>
        </widget>
       </item>
@@ -98,7 +103,8 @@
          <string>Duplicate</string>
         </property>
         <property name="icon">
-         <iconset theme="edit-copy"/>
+         <iconset theme="edit-copy">
+          <normaloff>.</normaloff>.</iconset>
         </property>
        </widget>
       </item>
@@ -120,6 +126,15 @@
    </item>
    <item>
     <widget class="QTreeWidget" name="tw_lumps">
+     <property name="styleSheet">
+      <string notr="true">background-color: #00FFFFFF</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
      <property name="rootIsDecorated">
       <bool>true</bool>
      </property>

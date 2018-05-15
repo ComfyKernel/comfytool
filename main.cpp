@@ -4,6 +4,7 @@
 
 #include "tab_home.h"
 #include "tab_cafbuilder.h"
+#include "tab_cafviewer.h"
 
 #include "toolmain.h"
 
@@ -18,6 +19,7 @@ int main(int argc, char *argv[]) {
     tm->openDefaultTab();
 
     tm->addFileTypeRef(new tab_cafbuilder(tm), "cafbuilder");
+    tm->addFileTypeRef(new tab_cafviewer (tm), ".caf");
 
     return qapp.exec();
 }

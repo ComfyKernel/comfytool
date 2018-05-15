@@ -63,7 +63,7 @@
       <string notr="true">background-color: #BBBBBB</string>
      </property>
      <property name="text">
-      <string>&lt;h5&gt;v0.3&lt;/h5&gt;</string>
+      <string>&lt;h5&gt;v0.4&lt;/h5&gt;</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -226,7 +226,7 @@
       <item>
        <widget class="QLabel" name="label_5">
         <property name="styleSheet">
-         <string notr="true">background-color : #DDDDDD</string>
+         <string notr="true">background-color : #DDDDDD;</string>
         </property>
         <property name="text">
          <string>Recent Files</string>
@@ -237,7 +237,14 @@
        </widget>
       </item>
       <item>
-       <widget class="QListWidget" name="lw_recent"/>
+       <widget class="QListWidget" name="lw_recent">
+        <property name="styleSheet">
+         <string notr="true">background-color: #FFFFFF</string>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
