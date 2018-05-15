@@ -104,6 +104,9 @@ public:
     explicit tab_cafbuilder(QWidget *parent = 0);
     ~tab_cafbuilder();
 
+    QString buildName = "";
+    bool    hasBuilt  = false;
+
     const QList<QMenu*> menus(QWidget *parent) const;
     QString getName();
     bool saveFile(const QString &file) const;
@@ -115,6 +118,8 @@ public slots:
     void handleValueChanged(QTreeWidgetItem* item, int column);
     void addLump           (const bLump& lump);
     void addRoot           ();
+    void build             ();
+    void openBuildDialog   ();
 
     void setRootPath    (const QVariant&);
     void setRootRevision(const QVariant&);

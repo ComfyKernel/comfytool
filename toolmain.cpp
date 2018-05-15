@@ -134,6 +134,7 @@ void ToolMain::openFile(QString fname) {
                         for(const auto& i : _refpairs) {
                             if(i.second == tp) {
                                 CTabScreen* tab = openTab(i.first);
+                                tab->setCurrentFile(fname);
                                 tab->loadFile(fname);
                                 qf.close();
                                 return;

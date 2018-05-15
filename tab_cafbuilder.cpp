@@ -3,6 +3,7 @@
 
 #include <QStyledItemDelegate>
 #include <QXmlStreamReader>
+#include <QFileDialog>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QTreeWidget>
@@ -293,6 +294,7 @@ const QList<QMenu*> tab_cafbuilder::menus(QWidget *parent) const {
     QAction* a_build = new QAction(m_caf);
     a_build->setText("Build");
     m_caf->addAction(a_build);
+    connect(a_build, &QAction::triggered, this, &tab_cafbuilder::build);
 
     ret.append(m_caf);
     return ret;
@@ -444,4 +446,117 @@ bool tab_cafbuilder::loadFile(const QString &file) {
 
     qf.close();
     return true;
+}
+
+void tab_cafbuilder::openBuildDialog() {
+    QString cname = _current_file;
+    cname.chop(cname.length() - cname.lastIndexOf('.'));
+    if(!buildName.isEmpty()) {
+        cname = buildName;
+    }
+
+    QString fname = QFileDialog::getSaveFileName(this, tr("Build File"), cname, tr("Comfy Asset File (*.caf)"));
+    if(fname.isEmpty())
+        return;
+
+    buildName = fname;
+    hasBuilt  = true;
+    build();
+}
+
+void tab_cafbuilder::build() {
+    if(!hasBuilt) {
+        openBuildDialog();
+        return;
+    }
+
+    QFile qf(buildName);
+
+    if(!qf.open(QIODevice::WriteOnly)) {
+        qInfo()<<"Failed opening file '"<<buildName<<"' for building";
+        return;
+    }
+
+    unsigned int offset = 3;
+
+    auto writeByte  = [&](uint8_t  num) {
+        offset += 1;
+        qf.write((char*)&num, 1);
+    };
+    auto writeShort = [&](uint16_t num) {
+        offset += 2;
+        qf.write((char*)&num, 2);
+    };
+    auto writeLong  = [&](uint32_t num) {
+        offset += 4;
+        qf.write((char*)&num, 4);
+    };
+    auto writeSuper = [&](uint64_t num) {
+        offset += 8;
+        qf.write((char*)&num, 8);
+    };
+    auto writeString = [&](QString str) {
+        std::string st = str.toStdString();
+        offset += st.length();
+        qf.write(st.c_str(), st.length());
+        writeByte(0);
+    };
+
+    // Write 3-Byte header
+    qf.write("CAF", 3);
+
+    // Write CAF Version (This Builder only supports 1.1 as of now)
+    writeShort(1);
+    writeShort(1);
+
+    // Write revision, pointer, and path
+    writeLong(rootinfo.revision);
+    writeSuper(offset + 8 + rootinfo.path.length() + 1);
+    writeString(rootinfo.path);
+
+    for(unsigned i = 0; i < lumps.length(); ++i) {
+        Lump* l = lumps[i];
+
+        // Write Flags
+        if(i != lumps.length() - 1) {
+            writeShort(0b1000000000000000);
+        } else {
+            writeShort(0);
+        }
+
+        // Load file
+        QString lfile = _current_file;
+        lfile.chop(lfile.length() - lfile.lastIndexOf('/') - 1);
+        lfile += l->data();
+
+        QFile lqf(lfile);
+
+        if(!lqf.open(QIODevice::ReadOnly)) {
+            qInfo()<<"Unable to get asset in lump '"<<l->name()<<"' ("<<lfile<<") ["<<_current_file<<"]";
+            qf.close();
+            return;
+        }
+
+        // Write lump Size & Revision
+        writeSuper(lqf.size());
+        writeLong (l->revision());
+
+        // Write pointers
+        writeSuper(offset + 16 + l->name().length() + l->path().length() + l->type().length() + 3);
+        writeSuper(offset + 8  + l->name().length() + l->path().length() + l->type().length() + 3 + lqf.size());
+
+        // Write Strings
+        writeString(l->name());
+        writeString(l->path());
+        writeString(l->type());
+
+        // Write LUMP Data
+        offset += lqf.size();
+        qf.write(lqf.readAll());
+
+        // Close file and go to next lump
+        lqf.close();
+    }
+
+    qf.close();
 }

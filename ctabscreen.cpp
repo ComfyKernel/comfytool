@@ -43,3 +43,7 @@ void CTabScreen::setModeChangeAllowed(bool mode) {
     _allow_mode_changing = mode;
     emit modeChanged(mode);
 }
+
+void CTabScreen::setCurrentFile(QString qf) {
+    _current_file = qf;
+}

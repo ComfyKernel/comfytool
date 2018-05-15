@@ -48,4 +48,5 @@ public slots:
     void setSavable (bool mode);
     void setLoadable(bool mode);
     void setModeChangeAllowed(bool mode);
+    void setCurrentFile(QString qf);
 };
