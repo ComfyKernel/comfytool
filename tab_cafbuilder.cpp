@@ -519,7 +519,8 @@ void tab_cafbuilder::build() {
 
         // Write Flags
         if(i != lumps.length() - 1) {
-            writeShort(0b1000000000000000);
+            writeByte (0b10000000);
+            writeByte (0b00000000);
         } else {
             writeShort(0);
         }
