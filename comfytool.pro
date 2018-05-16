@@ -30,7 +30,8 @@ SOURCES += \
     toolmain.cpp \
     tab_cafbuilder.cpp \
     tab_cafviewer.cpp \
-    caf.cpp
+    caf.cpp \
+    tab_tilesetbuilder.cpp
 
 HEADERS += \
     ctabscreen.h \
@@ -38,14 +39,17 @@ HEADERS += \
     toolmain.h \
     tab_cafbuilder.h \
     tab_cafviewer.h \
-    caf.h
+    caf.h \
+    tab_tilesetbuilder.h
 
 FORMS += \
     tab_home.ui \
     toolmain.ui \
     tab_cafbuilder.ui \
-    tab_cafviewer.ui
+    tab_cafviewer.ui \
+    tab_tilesetbuilder.ui
 
 DISTFILES += \
     caftesting/test.cxf \
-    caftesting/savetest.cxf
+    caftesting/savetest.cxf \
+    maptesting/ts_test.cxf
