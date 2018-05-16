@@ -2,6 +2,7 @@
 <root type="cafbuilder">
  <info major="1" minor="1" revision="0" path="/test_caf/"/>
  <lumpitem name="metadata" path="/" type="text/metadata" data="caf.metadata" revision="10"/>
- <lumpitem name="testimage" path="/images/" type="images/png" data="test.png" revision="1"/>
+ <lumpitem name="testimage" path="/images/" type="image/png" data="test.png" revision="1"/>
  <lumpitem name="source" path="/" type="text/text" data="somefile.txt" revision="0"/>
+ <lumpitem name="source_2" path="/sources/" type="text/text" data="somefile.txt" revision="5"/>
 </root>

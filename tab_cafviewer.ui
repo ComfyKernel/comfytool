@@ -22,7 +22,7 @@
   <property name="styleSheet">
    <string notr="true">background-color: #00FFFFFF</string>
   </property>
-  <layout class="QVBoxLayout" name="vl_data">
+  <layout class="QVBoxLayout" name="vl_viewer">
    <property name="spacing">
     <number>0</number>
    </property>
@@ -38,6 +38,32 @@
    <property name="bottomMargin">
     <number>0</number>
    </property>
+   <item>
+    <widget class="QScrollArea" name="sa_main">
+     <property name="verticalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOn</enum>
+     </property>
+     <property name="horizontalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOff</enum>
+     </property>
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>376</width>
+        <height>296</height>
+       </rect>
+      </property>
+     </widget>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources/>

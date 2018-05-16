@@ -13,6 +13,17 @@ tab_cafviewer::tab_cafviewer(QWidget *parent) :
     CTabScreen(parent),
     ui(new Ui::tab_cafviewer) {
     ui->setupUi(this);
+
+    QScrollArea* qsa = findChild<QScrollArea*>("sa_main");
+    QWidget* qw = new QWidget(qsa);
+    QVBoxLayout* qvbl = new QVBoxLayout(qw);
+    qvbl->setObjectName("vl_data");
+    qvbl->addStretch();
+    qvbl->setDirection(QVBoxLayout::BottomToTop);
+    qw->setLayout(qvbl);
+
+    qsa->setWidget(qw);
+    qsa->setWidgetResizable(true);
 }
 
 const QList<QMenu*> tab_cafviewer::menus(QWidget *parent) const {
@@ -45,8 +56,6 @@ bool tab_cafviewer::loadFile(const QString &file) {
     asset.load(file.toStdString());
 
     QVBoxLayout* vl = findChild<QVBoxLayout*>("vl_data");
-    vl->addStretch();
-    vl->setDirection(QVBoxLayout::BottomToTop);
 
     QFont qf_mono("Monospace");
     qf_mono.setStyleHint(QFont::TypeWriter);
@@ -84,6 +93,23 @@ bool tab_cafviewer::loadFile(const QString &file) {
             ql->setFont(qf_mono);
 
             ql->setText(_str);
+            ql->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+            qif->setLayout(vbl);
+            vbl->addWidget(ql);
+            qvbl->addWidget(qif);
+        }
+
+        if(QString(l.s_type.c_str()).contains("image/png")) {
+            QVBoxLayout* vbl = new QVBoxLayout();
+            QFrame* qif = new QFrame(qf_main);
+            qif->setFrameShape(QFrame::StyledPanel);
+            qif->setFrameShadow(QFrame::Sunken);
+
+            ql = new QLabel(qif);
+            QPixmap qmp;
+            qmp.loadFromData((uchar*)l.c_lump_data, l.s_lump_size);
+            ql->setPixmap(qmp);
+
             ql->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
             qif->setLayout(vbl);
             vbl->addWidget(ql);
