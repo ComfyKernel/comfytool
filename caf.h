@@ -1,3 +1,5 @@
+// Taken from https://github.com/ComfyKernel/caf.git
+
 #pragma once
 
 #include <vector>

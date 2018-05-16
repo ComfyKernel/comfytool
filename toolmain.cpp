@@ -124,6 +124,7 @@ void ToolMain::openFile(QString fname) {
             CTabScreen* tab = openTab(i.first);
             tab->setCurrentFile(fname);
             tab->loadFile(fname);
+            tabbar->setTabText(tabbar->indexOf(tab), tab->getName() + " : " + fname.remove(0, fname.lastIndexOf('/') + 1));
             qf.close();
             return;
         }
@@ -154,6 +155,8 @@ void ToolMain::openFile(QString fname) {
                                 CTabScreen* tab = openTab(i.first);
                                 tab->setCurrentFile(fname);
                                 tab->loadFile(fname);
+                                tab->loadFile(fname);
+                                tabbar->setTabText(tabbar->indexOf(tab), tab->getName() + " : " + fname.remove(0, fname.lastIndexOf('/') + 1));
                                 qf.close();
                                 return;
                             }
@@ -209,6 +212,9 @@ void ToolMain::closeTab(int tab) {
     CTabScreen* cts = (CTabScreen*)tabbar->widget(tab);
     cts->close();
     tabbar->removeTab(tab);
+    if(tabbar->count() < 1) {
+        openDefaultTab();
+    }
 }
 
 CTabScreen* ToolMain::currentTab() {
