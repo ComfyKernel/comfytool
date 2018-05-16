@@ -48,6 +48,9 @@ bool tab_cafviewer::loadFile(const QString &file) {
     vl->addStretch();
     vl->setDirection(QVBoxLayout::BottomToTop);
 
+    QFont qf_mono("Monospace");
+    qf_mono.setStyleHint(QFont::TypeWriter);
+
     for(unsigned i = asset.lumps.size(); i > 0; --i) {
         const lump& l = asset.lumps[i - 1];
         QFrame* qf_main = new QFrame(vl->widget());
@@ -78,6 +81,8 @@ bool tab_cafviewer::loadFile(const QString &file) {
             for(unsigned i = 0; i < l.s_lump_size; ++i) {
                 _str += l.c_lump_data[i];
             }
+            ql->setFont(qf_mono);
+
             ql->setText(_str);
             ql->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
             qif->setLayout(vbl);
