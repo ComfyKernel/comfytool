@@ -88,7 +88,7 @@ bool tab_cafviewer::loadFile(const QString &file) {
         qif->setLayout(vbl);
 
         QPushButton* qpb = new QPushButton(qif);
-        qpb->setText("Data");
+        qpb->setText("View");
         qpb->setCheckable(true);
         qpb->setChecked(false);
         vbl->addWidget(qpb);
@@ -97,6 +97,8 @@ bool tab_cafviewer::loadFile(const QString &file) {
 
         if(QString(l.s_type.c_str()).contains("text/")) {
             ql = new QLabel(qif);
+            ql->setFrameShape(QFrame::StyledPanel);
+            ql->setFrameShadow(QFrame::Raised);
             ql->setObjectName("l_data");
             QString _str;
             for(unsigned i = 0; i < l.s_lump_size; ++i) {
@@ -120,6 +122,8 @@ bool tab_cafviewer::loadFile(const QString &file) {
 
         if(QString(l.s_type.c_str()).contains("image/png")) {
             ql = new QLabel(qif);
+            ql->setFrameShape(QFrame::StyledPanel);
+            ql->setFrameShadow(QFrame::Raised);
             ql->setObjectName("l_data");
             QPixmap qmp;
             qmp.loadFromData((uchar*)l.c_lump_data, l.s_lump_size);
