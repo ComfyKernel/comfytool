@@ -3,6 +3,7 @@
 
 #include <QVBoxLayout>
 #include <QListWidget>
+#include <QPushButton>
 #include <QAction>
 #include <QLabel>
 #include <QDebug>
@@ -79,13 +80,24 @@ bool tab_cafviewer::loadFile(const QString &file) {
         ql->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
         qvbl->addWidget(ql);
 
-        if(QString(l.s_type.c_str()).contains("text/")) {
-            QVBoxLayout* vbl = new QVBoxLayout();
-            QFrame* qif = new QFrame(qf_main);
-            qif->setFrameShape(QFrame::StyledPanel);
-            qif->setFrameShadow(QFrame::Sunken);
+        QVBoxLayout* vbl = new QVBoxLayout();
+        QFrame* qif = new QFrame(qf_main);
+        qif->setFrameShape(QFrame::StyledPanel);
+        qif->setFrameShadow(QFrame::Sunken);
+        qif->setContentsMargins(0, 0, 0, 0);
+        qif->setLayout(vbl);
 
+        QPushButton* qpb = new QPushButton(qif);
+        qpb->setText("Data");
+        qpb->setCheckable(true);
+        qpb->setChecked(false);
+        vbl->addWidget(qpb);
+
+        qvbl->addWidget(qif);
+
+        if(QString(l.s_type.c_str()).contains("text/")) {
             ql = new QLabel(qif);
+            ql->setObjectName("l_data");
             QString _str;
             for(unsigned i = 0; i < l.s_lump_size; ++i) {
                 _str += l.c_lump_data[i];
@@ -94,26 +106,36 @@ bool tab_cafviewer::loadFile(const QString &file) {
 
             ql->setText(_str);
             ql->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
-            qif->setLayout(vbl);
+            ql->hide();
             vbl->addWidget(ql);
-            qvbl->addWidget(qif);
+
+            connect(qpb, &QPushButton::toggled, [=](bool checked) {
+                if(!checked) {
+                    ql->hide();
+                } else {
+                    ql->show();
+                }
+            });
         }
 
         if(QString(l.s_type.c_str()).contains("image/png")) {
-            QVBoxLayout* vbl = new QVBoxLayout();
-            QFrame* qif = new QFrame(qf_main);
-            qif->setFrameShape(QFrame::StyledPanel);
-            qif->setFrameShadow(QFrame::Sunken);
-
             ql = new QLabel(qif);
+            ql->setObjectName("l_data");
             QPixmap qmp;
             qmp.loadFromData((uchar*)l.c_lump_data, l.s_lump_size);
             ql->setPixmap(qmp);
 
             ql->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
-            qif->setLayout(vbl);
+            ql->hide();
             vbl->addWidget(ql);
-            qvbl->addWidget(qif);
+
+            connect(qpb, &QPushButton::toggled, [=](bool checked) {
+                if(!checked) {
+                    ql->hide();
+                } else {
+                    ql->show();
+                }
+            });
         }
 
         qvbl->addStretch();
