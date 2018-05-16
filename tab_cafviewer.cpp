@@ -1,8 +1,12 @@
 #include "tab_cafviewer.h"
 #include "ui_tab_cafviewer.h"
 
+#include <QVBoxLayout>
+#include <QListWidget>
 #include <QAction>
+#include <QLabel>
 #include <QDebug>
+#include <QFrame>
 #include <QMenu>
 
 tab_cafviewer::tab_cafviewer(QWidget *parent) :
@@ -38,7 +42,40 @@ bool tab_cafviewer::saveFile(const QString &file) const {
 }
 
 bool tab_cafviewer::loadFile(const QString &file) {
-    qInfo()<<"Loading unimplemented";
+    asset.load(file.toStdString());
+
+    QVBoxLayout* vl = findChild<QVBoxLayout*>("vl_data");
+    vl->addStretch();
+    vl->setDirection(QVBoxLayout::BottomToTop);
+
+    for(unsigned i = asset.lumps.size(); i > 0; --i) {
+        const lump& l = asset.lumps[i - 1];
+        QFrame* qf_main = new QFrame(vl->widget());
+        qf_main->setFrameShape(QFrame::StyledPanel);
+        qf_main->setFrameShadow(QFrame::Sunken);
+
+        QVBoxLayout* qvbl = new QVBoxLayout();
+        qvbl->setSpacing(0);
+
+        QLabel* ql = new QLabel(qf_main);
+        ql->setText(QString((l.s_path + l.s_name).c_str()));
+        ql->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+        qvbl->addWidget(ql);
+
+        ql = new QLabel(qf_main);
+        ql->setText(QString(l.s_type.c_str()));
+        ql->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+        qvbl->addWidget(ql);
+
+        qvbl->addStretch();
+        qvbl->setSizeConstraint(QLayout::SetFixedSize);
+
+        qf_main->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+        qf_main->setLayout(qvbl);
+
+        vl->addWidget(qf_main);
+    }
+
     return false;
 }
 

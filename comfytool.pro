@@ -29,14 +29,16 @@ SOURCES += \
     tab_home.cpp \
     toolmain.cpp \
     tab_cafbuilder.cpp \
-    tab_cafviewer.cpp
+    tab_cafviewer.cpp \
+    caf.cpp
 
 HEADERS += \
     ctabscreen.h \
     tab_home.h \
     toolmain.h \
     tab_cafbuilder.h \
-    tab_cafviewer.h
+    tab_cafviewer.h \
+    caf.h
 
 FORMS += \
     tab_home.ui \
