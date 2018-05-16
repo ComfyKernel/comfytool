@@ -67,8 +67,26 @@ bool tab_cafviewer::loadFile(const QString &file) {
         ql->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
         qvbl->addWidget(ql);
 
+        if(QString(l.s_type.c_str()).contains("text/")) {
+            QVBoxLayout* vbl = new QVBoxLayout();
+            QFrame* qif = new QFrame(qf_main);
+            qif->setFrameShape(QFrame::StyledPanel);
+            qif->setFrameShadow(QFrame::Sunken);
+
+            ql = new QLabel(qif);
+            QString _str;
+            for(unsigned i = 0; i < l.s_lump_size; ++i) {
+                _str += l.c_lump_data[i];
+            }
+            ql->setText(_str);
+            ql->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+            qif->setLayout(vbl);
+            vbl->addWidget(ql);
+            qvbl->addWidget(qif);
+        }
+
         qvbl->addStretch();
-        qvbl->setSizeConstraint(QLayout::SetFixedSize);
+        qvbl->setSizeConstraint(QLayout::SetMinimumSize);
 
         qf_main->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
         qf_main->setLayout(qvbl);
