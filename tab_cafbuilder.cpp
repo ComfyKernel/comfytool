@@ -359,6 +359,7 @@ bool tab_cafbuilder::saveFile(const QString &file) const {
 }
 
 bool tab_cafbuilder::loadFile(const QString &file) {
+    qInfo()<<"Loading file "<<file;
     QFile qf(file);
 
     if(!qf.open(QIODevice::ReadOnly | QIODevice::Text)) {

@@ -8,29 +8,32 @@
 
 #include "ctabscreen.h"
 
+class ToolMain;
+
 namespace Ui {
     class ToolMain;
 }
 
-typedef QPair<CTabScreen*, QString> _refpair;
+typedef CTabScreen* (*_cfunc)(ToolMain*);
+typedef QPair<_cfunc, QString> _refpair;
 
 class ToolMain : public QMainWindow {
     Q_OBJECT
 protected:
-    QTabWidget* tabbar;
-    CTabScreen* _default_tab;
+    QTabWidget*     tabbar;
+    _cfunc          _default_tab;
     QList<_refpair> _refpairs;
 
 public:
     explicit ToolMain(QWidget *parent = nullptr);
     ~ToolMain();
 
-    void addFileTypeRef(CTabScreen* ref = nullptr, const QString& name = "");
+    void addFileTypeRef   (_cfunc ref = nullptr, const QString& name = "");
     void removeFileTypeRef(const QString& name = "");
 
 public slots:
-    void setDefaultTab    (CTabScreen* tab = nullptr);
-    CTabScreen* openTab   (CTabScreen* tab = nullptr);
+    void setDefaultTab    (_cfunc tab = nullptr);
+    CTabScreen* openTab   (_cfunc tab = nullptr);
     void openDefaultTab   ();
     void openFileDialog   ();
     void openFile         (QString fname = "");

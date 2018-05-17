@@ -39,7 +39,7 @@ ToolMain::~ToolMain() {
     delete ui;
 }
 
-void ToolMain::addFileTypeRef(CTabScreen *ref, const QString &name) {
+void ToolMain::addFileTypeRef(_cfunc ref, const QString &name) {
     _refpairs.append(_refpair(ref, name));
 }
 
@@ -54,8 +54,8 @@ void ToolMain::removeFileTypeRef(const QString &name) {
     qInfo()<<"Unable to find ref '"<<name<<"'";
 }
 
-CTabScreen* ToolMain::openTab(CTabScreen *tab) {
-    CTabScreen* n_tab = tab->makeNew(this);
+CTabScreen* ToolMain::openTab(_cfunc tab) {
+    CTabScreen* n_tab = tab(this);
     n_tab->tool = this;
     tabbar->addTab(n_tab, n_tab->getName());
     tabbar->setCurrentIndex(tabbar->count() - 1);
@@ -66,7 +66,7 @@ void ToolMain::openDefaultTab() {
     openTab(_default_tab);
 }
 
-void ToolMain::setDefaultTab(CTabScreen *tab) {
+void ToolMain::setDefaultTab(_cfunc tab) {
     _default_tab = tab;
 }
 
@@ -154,7 +154,6 @@ void ToolMain::openFile(QString fname) {
                             if(i.second == tp) {
                                 CTabScreen* tab = openTab(i.first);
                                 tab->setCurrentFile(fname);
-                                tab->loadFile(fname);
                                 tab->loadFile(fname);
                                 tabbar->setTabText(tabbar->indexOf(tab), tab->getName() + " : " + fname.remove(0, fname.lastIndexOf('/') + 1));
                                 qf.close();

@@ -12,6 +12,18 @@ class tab_tilesetbuilder : public CTabScreen {
     Q_OBJECT
 
 public:
+    struct {
+        QString path        = "";
+        QString placeholder = "";
+    } texinfo;
+
+    struct {
+        int margin  = 0;
+        int spacing = 0;
+        unsigned width  = 8;
+        unsigned height = 8;
+    } info;
+
     explicit tab_tilesetbuilder(QWidget *parent = 0);
     ~tab_tilesetbuilder();
 
@@ -21,6 +33,9 @@ public:
     bool loadFile(const QString &file);
     CTabScreen* makeNew(QWidget *parent) const;
 
+public slots:
+    void updateVisualInfo();
+    void applyVisualSettings();
 
 private:
     Ui::tab_tilesetbuilder *ui;

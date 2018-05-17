@@ -15,13 +15,13 @@ int main(int argc, char *argv[]) {
     ToolMain* tm = new ToolMain;
     tm->show();
 
-    tab_home* htab = new tab_home(tm);
-    tm->setDefaultTab(htab);
-    tm->openDefaultTab();
+    tm->setDefaultTab([](ToolMain* t)->CTabScreen*{return new tab_home(t);});
 
-    tm->addFileTypeRef(new tab_cafbuilder    (tm), "cafbuilder");
-    tm->addFileTypeRef(new tab_tilesetbuilder(tm), "tileset");
-    tm->addFileTypeRef(new tab_cafviewer     (tm), ".caf");
+    tm->addFileTypeRef([](ToolMain* t)->CTabScreen*{return new tab_cafbuilder    (t);}, "cafbuilder");
+    tm->addFileTypeRef([](ToolMain* t)->CTabScreen*{return new tab_tilesetbuilder(t);}, "tileset");
+    tm->addFileTypeRef([](ToolMain* t)->CTabScreen*{return new tab_cafviewer     (t);}, ".caf");
+
+    tm->openDefaultTab();
 
     return qapp.exec();
 }

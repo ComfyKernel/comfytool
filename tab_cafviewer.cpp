@@ -54,6 +54,7 @@ bool tab_cafviewer::saveFile(const QString &file) const {
 }
 
 bool tab_cafviewer::loadFile(const QString &file) {
+    qInfo()<<"Loading file "<<file;
     asset.load(file.toStdString());
 
     QVBoxLayout* vl = findChild<QVBoxLayout*>("vl_data");
