@@ -38,7 +38,7 @@
       </sizepolicy>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: palette(light); color: palette(dark)</string>
+      <string notr="true"/>
      </property>
      <property name="text">
       <string>&lt;h1&gt;Comfy Tool&lt;/h5&gt;</string>
@@ -52,6 +52,13 @@
     </widget>
    </item>
    <item>
+    <widget class="Line" name="line_3">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QLabel" name="label_2">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -60,13 +67,20 @@
       </sizepolicy>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color : palette(mid); color : palette(light)</string>
+      <string notr="true"/>
      </property>
      <property name="text">
       <string>&lt;h5&gt;v0.4&lt;/h5&gt;</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="Line" name="line_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>
@@ -259,7 +273,10 @@
             <bool>false</bool>
            </property>
            <property name="styleSheet">
-            <string notr="true">background-color : palette(dark); color : palette(light)</string>
+            <string notr="true"/>
+           </property>
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
            </property>
            <property name="text">
             <string>Recent Files</string>
@@ -270,12 +287,22 @@
           </widget>
          </item>
          <item>
+          <widget class="Line" name="line">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QListWidget" name="lw_recent">
            <property name="autoFillBackground">
             <bool>false</bool>
            </property>
            <property name="styleSheet">
-            <string notr="true">background-color : palette(mid)</string>
+            <string notr="true">background : #00FFFFFF</string>
+           </property>
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
            </property>
           </widget>
          </item>
