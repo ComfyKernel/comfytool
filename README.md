@@ -1,5 +1,5 @@
 <h1 align="center">Comfy Tool</h1>
-<h4 align="center">AgGeneral purpose tool for the Comfy Engine</h1>
+<h4 align="center">A general purpose tool for the Comfy Engine</h1>
 <br />
 <h3>Features as of v0.4</h3>
 <ul>
