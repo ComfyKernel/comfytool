@@ -17,7 +17,7 @@ const QList<QMenu*> tab_tilesetbuilder::menus(QWidget *parent) const {
     QList<QMenu*> ret;
 
     QMenu* m_home = new QMenu(parent);
-    m_home->setTitle("Tilset");
+    m_home->setTitle("Tileset");
     /*QAction* a_about = new QAction(m_home);
     a_about->setText("About");
     m_home->addAction(a_about);*/
