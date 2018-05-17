@@ -68,17 +68,35 @@ bool tab_cafviewer::loadFile(const QString &file) {
         qf_main->setFrameShadow(QFrame::Sunken);
 
         QVBoxLayout* qvbl = new QVBoxLayout();
+        qvbl->setContentsMargins(6, 6, 6, 6);
         qvbl->setSpacing(0);
 
-        QLabel* ql = new QLabel(qf_main);
-        ql->setText(QString((l.s_path + l.s_name).c_str()));
-        ql->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
-        qvbl->addWidget(ql);
+        QWidget* qw_info = new QWidget(qf_main);
+        QHBoxLayout* qhbl = new QHBoxLayout();
+        qhbl->setMargin(0);
+        qhbl->setDirection(QHBoxLayout::RightToLeft);
+        qhbl->addStretch();
 
-        ql = new QLabel(qf_main);
+        qw_info->setLayout(qhbl);
+        qvbl->addWidget(qw_info);
+
+        QLabel* ql = new QLabel(qw_info);
         ql->setText(QString(l.s_type.c_str()));
-        ql->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
-        qvbl->addWidget(ql);
+        ql->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+        ql->setFrameShadow(QFrame::Raised);
+        ql->setFrameShape(QFrame::StyledPanel);
+        qhbl->addWidget(ql);
+
+        ql = new QLabel(qw_info);
+        ql->setText(QString((l.s_path + l.s_name).c_str()));
+        ql->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+        qhbl->addWidget(ql);
+
+        QPushButton* qpb = new QPushButton(qw_info);
+        qpb->setIcon(QIcon::fromTheme("list-add"));
+        qpb->setCheckable(true);
+        qpb->setChecked(false);
+        qhbl->addWidget(qpb);
 
         QVBoxLayout* vbl = new QVBoxLayout();
         QFrame* qif = new QFrame(qf_main);
@@ -86,12 +104,6 @@ bool tab_cafviewer::loadFile(const QString &file) {
         qif->setFrameShadow(QFrame::Sunken);
         qif->setContentsMargins(0, 0, 0, 0);
         qif->setLayout(vbl);
-
-        QPushButton* qpb = new QPushButton(qif);
-        qpb->setText("View");
-        qpb->setCheckable(true);
-        qpb->setChecked(false);
-        vbl->addWidget(qpb);
 
         qvbl->addWidget(qif);
 
