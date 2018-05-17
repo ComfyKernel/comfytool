@@ -18,8 +18,8 @@ int main(int argc, char *argv[]) {
     tm->setDefaultTab([](ToolMain* t)->CTabScreen*{return new tab_home(t);});
 
     tm->addFileTypeRef([](ToolMain* t)->CTabScreen*{return new tab_cafbuilder    (t);}, "cafbuilder");
-    tm->addFileTypeRef([](ToolMain* t)->CTabScreen*{return new tab_tilesetbuilder(t);}, "tileset");
-    tm->addFileTypeRef([](ToolMain* t)->CTabScreen*{return new tab_cafviewer     (t);}, ".caf");
+    tm->addFileTypeRef([](ToolMain* t)->CTabScreen*{return new tab_tilesetbuilder(t);}, "tileset"   );
+    tm->addFileTypeRef([](ToolMain* t)->CTabScreen*{return new tab_cafviewer     (t);}, ".caf"      );
 
     tm->openDefaultTab();
 

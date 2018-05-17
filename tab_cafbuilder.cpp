@@ -177,6 +177,10 @@ tab_cafbuilder::tab_cafbuilder(QWidget *parent) :
 }
 
 tab_cafbuilder::~tab_cafbuilder() {
+    for(const auto i : lumps) {
+        if(i) delete i;
+    }
+
     delete ui;
 }
 
