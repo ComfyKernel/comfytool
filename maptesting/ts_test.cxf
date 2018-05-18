@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
 <root type="tileset">
-    <texture path="/tests/images/test_tileset" placeholder="tileset.png"/>
+    <texture path="/tests/images/test_tileset" placeholder="test_tileset.png"/>
     <parameters margin="0" spacing="1" width="8" height="8"/>
 </root>
